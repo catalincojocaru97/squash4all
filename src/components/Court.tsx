@@ -12,6 +12,7 @@ interface CourtProps {
   hourlyRate: number
   onSessionStart?: () => void
   onSessionEnd?: (revenue: number) => void
+  rentalHours: number
 }
 
 // Define time intervals for selection
@@ -27,7 +28,8 @@ export function Court({
   courtNumber, 
   hourlyRate,
   onSessionStart,
-  onSessionEnd 
+  onSessionEnd,
+  rentalHours
 }: CourtProps) {
   const [isActive, setIsActive] = useState(false)
   const [time, setTime] = useState(0)
@@ -115,38 +117,31 @@ export function Court({
   }
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
+    let interval: NodeJS.Timeout | null = null;
 
     if (isActive) {
       interval = setInterval(() => {
         setTime((prevTime) => {
-          const newTime = prevTime + 1
+          const newTime = prevTime + 1;
           
           // Calculate court cost
-          let courtCost = 0
-          // Calculate cost based on court type and time
-          const rate = getCourtRate()
+          const rate = getCourtRate();
           
-          // For squash, bill only once based on the selected rate
-          // For table tennis, bill hourly
-          courtCost = type === "table-tennis" 
-            ? calculateHours(newTime) * rate
-            : rate
+          // Calculate court cost based on rental hours, not elapsed time
+          const courtCost = rate * rentalHours;
 
           // Add additional items cost
-          const additionalCost = calculateAdditionalCost()
-          setCost(courtCost + additionalCost)
-          return newTime
-        })
-      }, 1000)
-    } else if (!isActive && time !== 0) {
-      interval && clearInterval(interval)
+          const additionalCost = calculateAdditionalCost();
+          setCost(courtCost + additionalCost);
+          return newTime;
+        });
+      }, 1000);
     }
 
     return () => {
-      interval && clearInterval(interval)
-    }
-  }, [isActive, hourlyRate, isStudent, items, type, selectedTimeInterval])
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive, hourlyRate, isStudent, items, type, selectedTimeInterval, rentalHours, getCourtRate, calculateAdditionalCost, time]);
 
   // Display billing information
   const displayRateInfo = () => {

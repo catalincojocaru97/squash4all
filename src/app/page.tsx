@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Toaster, toast } from "sonner"
 import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardHeader, CardDescription } from "@/components/ui/card"
 import { CourtCard } from "@/components/CourtCard"
 import { BASE_RATES, CURRENCY_SYMBOL } from "@/types"
 import { Activity, TrendingUp, Calendar } from "lucide-react"
