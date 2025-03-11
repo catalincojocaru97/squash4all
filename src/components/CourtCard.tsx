@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -107,7 +107,7 @@ export function CourtCard({
     }
   }
 
-  const getCourtRate = () => {
+  const getCourtRate = useCallback(() => {
     if (type === "table-tennis") {
       // Table tennis has a fixed rate
       return hourlyRate
@@ -144,14 +144,14 @@ export function CourtCard({
     
     // If no interval found, use the default rate
     return interval ? interval.price : hourlyRate
-  }
+  }, [type, hourlyRate, isStudent, canApplyStudentRate, selectedTimeInterval, sessionStartTime])
 
-  const calculateAdditionalCost = () => {
+  const calculateAdditionalCost = useCallback(() => {
     return items.reduce((total, item) => {
       const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
       return total + (itemDef?.price || 0) * item.quantity
     }, 0)
-  }
+  }, [items])
 
   // Calculate hours, always rounding up to the next full hour
   const calculateHours = (seconds: number) => {
@@ -184,7 +184,7 @@ export function CourtCard({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, hourlyRate, isStudent, items, type, selectedTimeInterval, rentalHours, getCourtRate, calculateAdditionalCost, time]);
+  }, [isActive, rentalHours, getCourtRate, calculateAdditionalCost]);
 
   // Display billing information
   const displayRateInfo = () => {
