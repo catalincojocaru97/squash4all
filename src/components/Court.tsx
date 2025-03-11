@@ -30,7 +30,6 @@ export function Court({
   rentalHours
 }: CourtProps) {
   const [isActive, setIsActive] = useState(false)
-  const [time, setTime] = useState(0)
   const [cost, setCost] = useState(0)
   const [isStudent, setIsStudent] = useState(false)
   const [items, setItems] = useState<{ itemId: string; quantity: number }[]>([])
@@ -113,20 +112,13 @@ export function Court({
 
     if (isActive) {
       interval = setInterval(() => {
-        setTime((prevTime) => {
-          const newTime = prevTime + 1;
-          
-          // Calculate court cost
-          const rate = getCourtRate();
-          
-          // Calculate court cost based on rental hours, not elapsed time
-          const courtCost = rate * rentalHours;
+        // Calculate court cost based on rental hours, not elapsed time
+        const rate = getCourtRate();
+        const courtCost = rate * rentalHours;
 
-          // Add additional items cost
-          const additionalCost = calculateAdditionalCost();
-          setCost(courtCost + additionalCost);
-          return newTime;
-        });
+        // Add additional items cost
+        const additionalCost = calculateAdditionalCost();
+        setCost(courtCost + additionalCost);
       }, 1000);
     }
 
@@ -179,7 +171,6 @@ export function Court({
       setSelectedTimeInterval(null)
     } else {
       // Start new session
-      setTime(0)
       setCost(0)
       setIsActive(true)
       setSessionStartTime(new Date())
