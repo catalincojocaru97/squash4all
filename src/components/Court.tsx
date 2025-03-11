@@ -8,7 +8,6 @@ import { PRICE_INTERVALS, STUDENT_PRICE, ADDITIONAL_ITEMS, CURRENCY_SYMBOL } fro
 interface CourtProps {
   name: string
   type: "squash" | "table-tennis"
-  courtNumber?: number
   hourlyRate: number
   onSessionStart?: () => void
   onSessionEnd?: (revenue: number) => void
@@ -25,7 +24,6 @@ const TIME_INTERVAL_OPTIONS = [
 export function Court({ 
   name, 
   type, 
-  courtNumber, 
   hourlyRate,
   onSessionStart,
   onSessionEnd,
@@ -109,12 +107,6 @@ export function Court({
       return total + (itemDef?.price || 0) * item.quantity
     }, 0)
   }, [items])
-
-  // Calculate hours, always rounding up to the next full hour
-  const calculateHours = (seconds: number) => {
-    // Convert seconds to hours, then take the ceiling to always round up
-    return Math.ceil(seconds / 3600)
-  }
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Check, Clock, Plus, Minus, Users, Award, Ban, ChevronDown, ChevronUp, ShoppingCart, Coffee, CircleDollarSign, User } from "lucide-react"
-import { AdditionalItems } from "./AdditionalItems"
 import { PRICE_INTERVALS, STUDENT_PRICE, ADDITIONAL_ITEMS, CURRENCY_SYMBOL } from "@/types"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -153,12 +152,6 @@ export function CourtCard({
     }, 0)
   }, [items])
 
-  // Calculate hours, always rounding up to the next full hour
-  const calculateHours = (seconds: number) => {
-    // Convert seconds to hours, then take the ceiling to always round up
-    return Math.ceil(seconds / 3600)
-  }
-
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
@@ -185,39 +178,6 @@ export function CourtCard({
       if (interval) clearInterval(interval);
     };
   }, [isActive, rentalHours, getCourtRate, calculateAdditionalCost]);
-
-  // Display billing information
-  const displayRateInfo = () => {
-    if (type === "squash") {
-      if (isStudent && canApplyStudentRate) {
-        return `Student rate: ${STUDENT_PRICE} ${CURRENCY_SYMBOL}`
-      } else {
-        const option = selectedTimeInterval 
-          ? TIME_INTERVAL_OPTIONS.find(opt => opt.value === selectedTimeInterval)
-          : null
-          
-        if (option) {
-          return `${option.label}: ${option.price} ${CURRENCY_SYMBOL}`
-        } else if (sessionStartTime) {
-          const day = sessionStartTime.getDay()
-          const isWeekend = day === 0 || day === 6
-          const hour = sessionStartTime.getHours()
-          
-          if (isWeekend) {
-            return `Weekend rate: 80 ${CURRENCY_SYMBOL}`
-          } else if (hour >= 7 && hour < 17) {
-            return `Day rate (7-17): 50 ${CURRENCY_SYMBOL}`
-          } else if (hour >= 17 && hour < 23) {
-            return `Evening rate (17-23): 80 ${CURRENCY_SYMBOL}`
-          }
-        }
-      }
-    } else {
-      // Table tennis
-      return `Fixed rate: ${hourlyRate} ${CURRENCY_SYMBOL}`
-    }
-    return ""
-  }
 
   const resetSession = () => {
     setIsActive(false)
