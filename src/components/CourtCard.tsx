@@ -160,33 +160,31 @@ export function CourtCard({
   }
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
+    let interval: NodeJS.Timeout | null = null;
 
     if (isActive) {
       interval = setInterval(() => {
         setTime((prevTime) => {
-          const newTime = prevTime + 1
+          const newTime = prevTime + 1;
           
           // Calculate court cost
-          const rate = getCourtRate()
+          const rate = getCourtRate();
           
           // Calculate court cost based on rental hours, not elapsed time
-          const courtCost = rate * rentalHours
+          const courtCost = rate * rentalHours;
 
           // Add additional items cost
-          const additionalCost = calculateAdditionalCost()
-          setCost(courtCost + additionalCost)
-          return newTime
-        })
-      }, 1000)
-    } else if (!isActive && time !== 0) {
-      interval && clearInterval(interval)
+          const additionalCost = calculateAdditionalCost();
+          setCost(courtCost + additionalCost);
+          return newTime;
+        });
+      }, 1000);
     }
 
     return () => {
-      interval && clearInterval(interval)
-    }
-  }, [isActive, hourlyRate, isStudent, items, type, selectedTimeInterval, rentalHours])
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive, hourlyRate, isStudent, items, type, selectedTimeInterval, rentalHours, getCourtRate, calculateAdditionalCost, time]);
 
   // Display billing information
   const displayRateInfo = () => {
