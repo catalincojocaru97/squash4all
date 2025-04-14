@@ -10,7 +10,7 @@ import { ActiveSession } from "@/components/ActiveSession"
 import { EmptyState } from "@/components/EmptyState"
 import { BookingDialog } from "@/components/BookingDialog"
 import { EndSessionDialog } from "@/components/EndSessionDialog"
-import { Calendar, Clock, CircleDollarSign, Users, Plus } from "lucide-react"
+import { Calendar, Clock, CircleDollarSign, Plus } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
