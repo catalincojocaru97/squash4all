@@ -25,12 +25,11 @@ import { Badge } from "@/components/ui/badge"
 
 interface ActiveSessionProps {
   session: Session
-  onEnd: (finalCost: number, paymentMethod?: 'cash' | 'card') => void
   onAddItems: (items: { itemId: string; quantity: number }[]) => void
   onUpdateSessionDetails: (updates: { isStudent?: boolean; selectedTimeInterval?: string; discountCards?: number }) => void
 }
 
-export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetails }: ActiveSessionProps) {
+export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: ActiveSessionProps) {
   const [time, setTime] = useState<number>(session.actualDuration || 0)
   const [currentCost, setCurrentCost] = useState<number>(session.cost)
   const [items, setItems] = useState(session.items)
