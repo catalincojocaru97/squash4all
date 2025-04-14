@@ -206,7 +206,7 @@ export function BookingDialog({
                   variant="outline"
                   size="icon"
                   className="rounded-r-none"
-                  onClick={(_) => setScheduledDuration(h => Math.max(1, h - 1))}
+                  onClick={() => setScheduledDuration(h => Math.max(1, h - 1))}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
@@ -215,7 +215,7 @@ export function BookingDialog({
                   variant="outline"
                   size="icon"
                   className="rounded-l-none border-l-0"
-                  onClick={(_) => setScheduledDuration(h => h + 1)}
+                  onClick={() => setScheduledDuration(h => h + 1)}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
