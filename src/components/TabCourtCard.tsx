@@ -26,35 +26,36 @@ interface TabCourtCardProps {
 
 // Active Tab showing current active session
 // Moved definition outside TabCourtCard for clarity and performance
-interface ActiveTabProps {
-  activeSession: Session;
-  onEndSession: (finalCost: number, paymentMethod?: 'cash' | 'card') => void;
-  onUpdateSession: (updates: Partial<Session>) => void;
-}
+// No longer needed as the content has been integrated directly into the component
+// interface ActiveTabProps {
+//   activeSession: Session;
+//   onEndSession: (finalCost: number, paymentMethod?: 'cash' | 'card') => void;
+//   onUpdateSession: (updates: Partial<Session>) => void;
+// }
 
-function ActiveTab({ activeSession, onEndSession, onUpdateSession }: ActiveTabProps) {
+// function ActiveTab({ activeSession, onEndSession, onUpdateSession }: ActiveTabProps) {
 
-  // Handler for adding/removing items - update parent via onUpdateSession
-  const handleAddItems = (newItems: { itemId: string; quantity: number }[]) => {
-    onUpdateSession({ items: newItems });
-  };
+//   // Handler for adding/removing items - update parent via onUpdateSession
+//   const handleAddItems = (newItems: { itemId: string; quantity: number }[]) => {
+//     onUpdateSession({ items: newItems });
+//   };
 
-  // Handler for updating session details (rate, student status) - update parent via onUpdateSession
-  const handleUpdateDetails = (updates: { isStudent?: boolean; selectedTimeInterval?: string }) => {
-    onUpdateSession(updates);
-  };
+//   // Handler for updating session details (rate, student status) - update parent via onUpdateSession
+//   const handleUpdateDetails = (updates: { isStudent?: boolean; selectedTimeInterval?: string }) => {
+//     onUpdateSession(updates);
+//   };
 
-  return (
-    <div className="p-4">
-      <ActiveSession 
-        session={activeSession} 
-        onEnd={onEndSession} // Pass the main endSession handler directly
-        onAddItems={handleAddItems} // Use the new handler
-        onUpdateSessionDetails={handleUpdateDetails} // Pass the new handler
-      />
-    </div>
-  );
-}
+//   return (
+//     <div className="p-4">
+//       <ActiveSession 
+//         session={activeSession} 
+//         onEnd={onEndSession} // Pass the main endSession handler directly
+//         onAddItems={handleAddItems} // Use the new handler
+//         onUpdateSessionDetails={handleUpdateDetails} // Pass the new handler
+//       />
+//     </div>
+//   );
+// }
 
 export function TabCourtCard({ 
   id,

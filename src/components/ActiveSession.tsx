@@ -16,7 +16,6 @@ import {
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EndSessionDialog } from "@/components/EndSessionDialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -108,20 +107,6 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
 
     // Update items in parent component with the new items array
     onAddItems(newItems);
-  }
-
-  // Handle session end with payment
-  const handleEndSessionWithPayment = (paymentMethod: 'cash' | 'card') => {
-    // Calculate the current cost based on the session's state
-    const finalCost = getSessionCost();
-
-    // Pass the current cost and payment method to the parent component
-    onEnd(finalCost, paymentMethod);
-  }
-
-  // Handle session end without payment
-  const handleEndSessionWithoutPayment = () => {
-    onEnd(0) // No charge
   }
 
   // Rate interval change handler - call parent via onUpdateSessionDetails
