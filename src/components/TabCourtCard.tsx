@@ -83,6 +83,7 @@ export function TabCourtCard({
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false)
   const [isSessionDetailsOpen, setIsSessionDetailsOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
+  const [activeTab, setActiveTab] = useState<string>("active")
   
   // Handle create booking
   const handleCreateBooking = () => {
@@ -129,6 +130,7 @@ export function TabCourtCard({
     if (sessionId) {
       startSession(sessionId)
       onSessionStart?.()
+      setActiveTab("active") // Switch to the active tab
     } else {
       // Direct start without an upcoming session - open booking dialog
       setIsBookingDialogOpen(true)
@@ -192,7 +194,7 @@ export function TabCourtCard({
         </CardHeader>
         
         <CardContent className="flex-grow overflow-hidden flex flex-col p-0">
-          <Tabs defaultValue="active" className="w-full flex flex-col h-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col h-full">
             <div className="px-4 pt-4 pb-2 flex-shrink-0">
               <div className="bg-card rounded-md p-1.5 flex border border-border">
                 <TabsList className="bg-transparent p-0 w-full flex justify-between">
@@ -258,14 +260,11 @@ export function TabCourtCard({
                   </div>
                 </div>
               ) : (
-                <EmptyState
-                  message="No active session"
-                  action={
-                    <Button onClick={() => handleStartSession()}> 
-                      Start Session
-                    </Button>
-                  }
-                />
+                <div className="px-4 py-4">
+                  <EmptyState
+                    message="No active session"
+                  />
+                </div>
               )}
             </TabsContent>
             
