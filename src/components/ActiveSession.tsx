@@ -41,6 +41,7 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
   const [additionalItemsExpanded, setAdditionalItemsExpanded] = useState(false)
   const [refreshmentItemsExpanded, setRefreshmentItemsExpanded] = useState(false)
   const [rateOptionsExpanded, setRateOptionsExpanded] = useState(false)
+  const [discountCardsExpanded, setDiscountCardsExpanded] = useState(false)
 
   // Format time in hours and minutes
   const formatTime = (seconds: number) => {
@@ -336,44 +337,6 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                                 </label>
                               </div>
                             )}
-
-                            {/* Add discount cards section inside each TabsContent, like in BookingDialog */}
-                            <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-border">
-                              <div className="flex-1">
-                                <span className="font-medium">Discount Cards</span>
-                                <span className="text-xs text-muted-foreground ml-1.5">(-{DISCOUNT_CARD_AMOUNT} {CURRENCY_SYMBOL} each)</span>
-                              </div>
-                              <div className="flex items-center">
-                                <button
-                                  onClick={handleDecreaseDiscountCards}
-                                  className={cn(
-                                    "p-1 rounded-full transition-colors",
-                                    discountCards > 0
-                                      ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
-                                      : "text-gray-300 dark:text-gray-600"
-                                  )}
-                                  disabled={discountCards === 0}
-                                  type="button"
-                                >
-                                  <Minus className="w-3.5 h-3.5" />
-                                </button>
-                                <span className={cn(
-                                  "w-5 text-center text-sm font-medium transition-colors",
-                                  discountCards > 0
-                                    ? "text-blue-600 dark:text-blue-400"
-                                    : "text-gray-400 dark:text-gray-500"
-                                )}>
-                                  {discountCards}
-                                </span>
-                                <button
-                                  onClick={handleIncreaseDiscountCards}
-                                  className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
-                                  type="button"
-                                >
-                                  <Plus className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </div>
                           </div>
                         </TabsContent>
                       ))}
@@ -384,6 +347,89 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
             </AnimatePresence>
           </div>
         )}
+
+        {/* Discount Cards Section - Available for all court types */}
+        <div className="rounded-md border border-border overflow-hidden">
+          <button 
+            onClick={() => setDiscountCardsExpanded(prev => !prev)}
+            className="w-full flex items-center justify-between p-2 bg-card hover:bg-muted/50 text-sm font-medium"
+          >
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-blue-500" />
+              <span>Discount Cards</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {discountCards > 0 && (
+                <div className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-1.5 py-0.5 rounded-full">
+                  {discountCards}
+                </div>
+              )}
+              {discountCardsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </div>
+          </button>
+          
+          <AnimatePresence>
+            {discountCardsExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="p-3 bg-muted/50 dark:bg-muted/20">
+                  <div className="rounded-md bg-card p-2.5 text-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <div className="font-medium">Discount Cards</div>
+                        <p className="text-xs text-muted-foreground">Each card provides {DISCOUNT_CARD_AMOUNT} {CURRENCY_SYMBOL} discount</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex-1">
+                        <span className="text-sm">Applied discount:</span>
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-400 ml-1">
+                          {discountCards > 0 ? `-${(discountCards * DISCOUNT_CARD_AMOUNT).toFixed(2)} ${CURRENCY_SYMBOL}` : 'None'}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <button
+                          onClick={handleDecreaseDiscountCards}
+                          className={cn(
+                            "p-1 rounded-full transition-colors",
+                            discountCards > 0
+                              ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+                              : "text-gray-300 dark:text-gray-600"
+                          )}
+                          disabled={discountCards === 0}
+                          type="button"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className={cn(
+                          "w-5 text-center text-sm font-medium transition-colors",
+                          discountCards > 0 
+                            ? "text-blue-600 dark:text-blue-400" 
+                            : "text-gray-400 dark:text-gray-500"
+                        )}>
+                          {discountCards}
+                        </span>
+                        <button
+                          onClick={handleIncreaseDiscountCards}
+                          className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                          type="button"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Equipment Section */}
         <div className="rounded-md border border-border overflow-hidden">

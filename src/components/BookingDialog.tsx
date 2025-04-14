@@ -44,6 +44,7 @@ export function BookingDialog({
   const [rateOptionsExpanded, setRateOptionsExpanded] = useState(false)
   const [equipmentExpanded, setEquipmentExpanded] = useState(false)
   const [refreshmentsExpanded, setRefreshmentsExpanded] = useState(false)
+  const [discountCardsExpanded, setDiscountCardsExpanded] = useState(false)
   const [displayCost, setDisplayCost] = useState(0) // State to hold calculated cost
 
   // Reset state when dialog opens or closes, or when existingSession changes
@@ -177,16 +178,16 @@ export function BookingDialog({
   // --- JSX Structure ---
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] overflow-y-auto max-h-[90vh]"> {/* Increased width, added scroll */}
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[400px] p-0"> {/* Removed padding from DialogContent */}
+        <DialogHeader className="p-6 pb-2"> {/* Added explicit padding to header */}
           <DialogTitle>{existingSession ? "Edit Booking" : "Book Court"}</DialogTitle>
           <DialogDescription>
             Enter details for the court booking. Fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Main Content Area */}
-        <div className="py-4 space-y-4">
+        {/* Main Content Area - now scrollable, removed right padding */}
+        <div className="px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
           {/* Player Name Input */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right font-medium">
@@ -249,59 +250,18 @@ export function BookingDialog({
               Start Time*
             </Label>
             <div className="col-span-3">
-              <div className="flex gap-2 mt-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setScheduledTime("8:00")}
-                  className={cn(
-                    "flex-1 px-1 py-1 h-auto text-xs",
-                    scheduledTime === "8:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
-                  )}
-                >
-                  8:00
-                </Button>
-                
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setScheduledTime("12:00")}
-                  className={cn(
-                    "flex-1 px-1 py-1 h-auto text-xs",
-                    scheduledTime === "12:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
-                  )}
-                >
-                  12:00
-                </Button>
-                
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setScheduledTime("18:00")}
-                  className={cn(
-                    "flex-1 px-1 py-1 h-auto text-xs",
-                    scheduledTime === "18:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
-                  )}
-                >
-                  18:00
-                </Button>
-                
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setScheduledTime("20:00")}
-                  className={cn(
-                    "flex-1 px-1 py-1 h-auto text-xs",
-                    scheduledTime === "20:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
-                  )}
-                >
-                  20:00
-                </Button>
-              </div>
+              <select
+                id="startHour"
+                value={scheduledTime}
+                onChange={(e) => setScheduledTime(e.target.value)}
+                className="flex h-10 w-1/2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {Array.from({ length: 17 }, (_, i) => i + 7).map((hour) => (
+                  <option key={hour} value={`${hour}:00`}>
+                    {hour}:00
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           
@@ -357,11 +317,11 @@ export function BookingDialog({
                                                 {option.value === 'day' && (
                                                     <div className="mt-2.5 pt-2 border-t border-border">
                                                         <label className="flex items-center gap-2 cursor-pointer">
-                                                            <input 
-                                                                type="checkbox" 
-                                                                checked={isStudent} 
-                                                                onChange={(e) => { e.stopPropagation(); handleStudentChange(e); }} 
-                                                                className="rounded border-green-500 text-green-500 focus:ring-green-500/25" 
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isStudent}
+                                                                onChange={handleStudentChange}
+                                                                className="rounded border-green-500 text-green-500 focus:ring-green-500/25"
                                                             />
                                                             <div className="flex items-center gap-1.5">
                                                                 <Award className="h-3.5 w-3.5 text-green-500" />
@@ -370,42 +330,6 @@ export function BookingDialog({
                                                         </label>
                                                     </div>
                                                 )}
-                                                <div className="flex items-center gap-2 mt-2 px-2">
-                                                    <div className="text-sm cursor-pointer flex-1">
-                                                        <span className="font-medium">Discount Cards</span>
-                                                        <span className="text-xs text-muted-foreground ml-1.5">(-{DISCOUNT_CARD_AMOUNT} {CURRENCY_SYMBOL} each)</span>
-                                                    </div>
-                                                    <div className="flex items-center">
-                                                        <button
-                                                            onClick={decreaseDiscountCards}
-                                                            className={cn(
-                                                                "p-1 rounded-full transition-colors",
-                                                                discountCards > 0
-                                                                    ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
-                                                                    : "text-gray-300 dark:text-gray-600"
-                                                            )}
-                                                            disabled={discountCards === 0}
-                                                            type="button"
-                                                        >
-                                                            <Minus className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <span className={cn(
-                                                            "w-5 text-center text-sm font-medium transition-colors",
-                                                            discountCards > 0 
-                                                                ? "text-blue-600 dark:text-blue-400" 
-                                                                : "text-gray-400 dark:text-gray-500"
-                                                        )}>
-                                                            {discountCards}
-                                                        </span>
-                                                        <button
-                                                            onClick={increaseDiscountCards}
-                                                            className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
-                                                            type="button"
-                                                        >
-                                                            <Plus className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </TabsContent>
                                     ))}
@@ -416,6 +340,89 @@ export function BookingDialog({
                 </AnimatePresence>
             </div>
           )}
+
+          {/* --- Discount Cards Section --- */}
+          <div className="rounded-md border border-border overflow-hidden">
+            <button 
+              onClick={() => setDiscountCardsExpanded(prev => !prev)}
+              className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
+            >
+              <div className="flex items-center gap-2">
+                <CircleDollarSign className="h-4 w-4 text-blue-500" />
+                <span>Discount Cards</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {discountCards > 0 && (
+                  <div className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-1.5 py-0.5 rounded-full">
+                    {discountCards}
+                  </div>
+                )}
+                {discountCardsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </div>
+            </button>
+            
+            <AnimatePresence>
+              {discountCardsExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-3 bg-muted/50 dark:bg-muted/20">
+                    <div className="rounded-md bg-card p-2.5 text-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <div className="font-medium">Discount Cards</div>
+                          <p className="text-xs text-muted-foreground">Each card provides {DISCOUNT_CARD_AMOUNT} {CURRENCY_SYMBOL} discount</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex-1">
+                          <span className="text-sm">Applied discount:</span>
+                          <span className="text-sm font-medium text-blue-600 dark:text-blue-400 ml-1">
+                            {discountCards > 0 ? `-${(discountCards * DISCOUNT_CARD_AMOUNT).toFixed(2)} ${CURRENCY_SYMBOL}` : 'None'}
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <button
+                            onClick={decreaseDiscountCards}
+                            className={cn(
+                              "p-1 rounded-full transition-colors",
+                              discountCards > 0
+                                ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+                                : "text-gray-300 dark:text-gray-600"
+                            )}
+                            disabled={discountCards === 0}
+                            type="button"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className={cn(
+                            "w-5 text-center text-sm font-medium transition-colors",
+                            discountCards > 0 
+                              ? "text-blue-600 dark:text-blue-400" 
+                              : "text-gray-400 dark:text-gray-500"
+                          )}>
+                            {discountCards}
+                          </span>
+                          <button
+                            onClick={increaseDiscountCards}
+                            className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                            type="button"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* --- Equipment Section --- */}
           <div className="rounded-md border border-border overflow-hidden">
@@ -564,29 +571,23 @@ export function BookingDialog({
                      )}
                  </AnimatePresence>
              </div>
+        </div>
 
-          {/* Estimated Cost Display */}
-          <div className="pt-4 mt-4 border-t border-border">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-foreground">Estimated Cost:</span>
-              <span className="text-lg font-semibold text-green-600 dark:text-green-400">
-                {displayCost.toFixed(2)} {CURRENCY_SYMBOL}
-              </span>
-            </div>
-            {discountCards > 0 && (
-              <div className="flex justify-between items-center text-xs text-muted-foreground mt-1">
-                <span>Discount applied ({discountCards} {discountCards === 1 ? 'card' : 'cards'}):</span>
-                <span>-{(discountCards * DISCOUNT_CARD_AMOUNT).toFixed(2)} {CURRENCY_SYMBOL}</span>
-              </div>
-            )}
-            <p className="text-xs text-muted-foreground mt-1">
-              Based on {scheduledDuration} hour(s), selected rate, and items.
-            </p>
+        {/* Estimated Cost Display - moved outside scrollable area */}
+        <div className="px-6 py-4 border-t border-border">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-foreground">Estimated Cost:</span>
+            <span className="text-lg font-semibold text-green-600 dark:text-green-400">
+              {displayCost.toFixed(2)} {CURRENCY_SYMBOL}
+            </span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Based on {scheduledDuration} hour(s), selected rate, and items.
+          </p>
         </div>
 
         {/* Footer with Actions */}
-        <DialogFooter>
+        <DialogFooter className="p-6 pt-2">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
