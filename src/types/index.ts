@@ -86,6 +86,20 @@ export const ADDITIONAL_ITEMS: AdditionalItem[] = [
     category: 'refreshment'
   },
   {
+    id: 'coca-cola',
+    name: 'Coca-cola',
+    price: 6,
+    icon: 'drink',
+    category: 'refreshment'
+  },
+  {
+    id: 'gatorade',
+    name: 'Gatorade',
+    price: 10,
+    icon: 'drink',
+    category: 'refreshment'
+  },
+  {
     id: 'arc',
     name: 'Arc',
     price: 10,
