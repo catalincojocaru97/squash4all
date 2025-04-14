@@ -113,8 +113,14 @@ export function DayReportDialog({
             report.totalSessions += 1;
             report.totalRevenue += session.cost;
             
-            // Update rate breakdown
-            const rateType = session.isStudent ? 'student' : (session.selectedTimeInterval || 'day');
+            // Update rate breakdown - modified to handle table tennis separately
+            let rateType;
+            if (session.type === 'table-tennis') {
+              rateType = 'table-tennis';
+            } else {
+              rateType = session.isStudent ? 'student' : (session.selectedTimeInterval || 'day');
+            }
+
             if (!report.rateBreakdown[rateType]) {
               report.rateBreakdown[rateType] = { count: 0, revenue: 0 };
             }
@@ -178,40 +184,11 @@ export function DayReportDialog({
             </span>
           </AlertDialogTitle>
           <AlertDialogDescription>
-            <div className="border border-border rounded-lg mb-4 overflow-hidden">
-              {/* Summary header */}
-              <div className="p-4 bg-muted/50 dark:bg-muted/30 border-b border-border flex flex-col md:flex-row justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="text-4xl font-bold text-foreground">{grandTotal.toFixed(2)} {CURRENCY_SYMBOL}</div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-muted-foreground">Total Revenue</span>
-                    <span className="text-sm font-medium text-foreground">{totalSessions} Sessions</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-yellow-100 dark:bg-yellow-950/30 rounded-md text-yellow-800 dark:text-yellow-300 font-medium">
-                    <Banknote className="h-4 w-4" />
-                    <div className="flex flex-col">
-                      <span className="text-xs">Cash</span>
-                      <span>{reportData.cash.totalRevenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 px-3 py-2 bg-green-100 dark:bg-green-950/30 rounded-md text-green-800 dark:text-green-300 font-medium">
-                    <CreditCard className="h-4 w-4" />
-                    <div className="flex flex-col">
-                      <span className="text-xs">Card</span>
-                      <span>{reportData.card.totalRevenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
+            <div className="border border-border rounded-t-lg overflow-hidden mb-0">
               {/* Two column layout for payment methods */}
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Cash column */}
-                <div className="border-r border-border">
+                <div className="border-r border-border flex flex-col">
                   <div className="p-3 flex items-center justify-between bg-yellow-50 dark:bg-yellow-950/30 border-b border-border">
                     <div className="flex items-center gap-2">
                       <Banknote className="h-5 w-5 text-yellow-700 dark:text-yellow-500" />
@@ -220,7 +197,7 @@ export function DayReportDialog({
                     <div className="text-sm font-medium text-yellow-900 dark:text-yellow-300">{reportData.cash.totalSessions} Sessions</div>
                   </div>
                   
-                  <div className="p-4">
+                  <div className="p-4 flex-grow overflow-y-auto">
                     {/* Rate breakdown */}
                     <div className="mb-5">
                       <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
@@ -245,6 +222,9 @@ export function DayReportDialog({
                           } else if (rateType === 'student') {
                             icon = <Award className="h-4 w-4 text-muted-foreground" />;
                             label = "Student Rate";
+                          } else if (rateType === 'table-tennis') {
+                            icon = <Users className="h-4 w-4 text-muted-foreground" />;
+                            label = "Table Tennis";
                           } else {
                             icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = rateType;
@@ -330,10 +310,21 @@ export function DayReportDialog({
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Cash Column Total - Fixed at the bottom of the cash column */}
+                  <div className="p-3 bg-yellow-50 dark:bg-yellow-950/30 border-t border-border sticky bottom-0">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-yellow-900 dark:text-yellow-300">Column Total:</div>
+                      <div className="flex items-center gap-2 font-semibold text-yellow-800 dark:text-yellow-300">
+                        <Banknote className="h-4 w-4" />
+                        {reportData.cash.totalRevenue.toFixed(2)} {CURRENCY_SYMBOL}
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Card column */}
-                <div>
+                <div className="flex flex-col">
                   <div className="p-3 flex items-center justify-between bg-green-50 dark:bg-green-950/30 border-b border-border">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-5 w-5 text-green-700 dark:text-green-500" />
@@ -342,7 +333,7 @@ export function DayReportDialog({
                     <div className="text-sm font-medium text-green-900 dark:text-green-300">{reportData.card.totalSessions} Sessions</div>
                   </div>
                   
-                  <div className="p-4">
+                  <div className="p-4 flex-grow overflow-y-auto">
                     {/* Rate breakdown */}
                     <div className="mb-5">
                       <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
@@ -367,6 +358,9 @@ export function DayReportDialog({
                           } else if (rateType === 'student') {
                             icon = <Award className="h-4 w-4 text-muted-foreground" />;
                             label = "Student Rate";
+                          } else if (rateType === 'table-tennis') {
+                            icon = <Users className="h-4 w-4 text-muted-foreground" />;
+                            label = "Table Tennis";
                           } else {
                             icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = rateType;
@@ -452,12 +446,36 @@ export function DayReportDialog({
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Card Column Total - Fixed at the bottom of the card column */}
+                  <div className="p-3 bg-green-50 dark:bg-green-950/30 border-t border-border sticky bottom-0">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-green-900 dark:text-green-300">Column Total:</div>
+                      <div className="flex items-center gap-2 font-semibold text-green-800 dark:text-green-300">
+                        <CreditCard className="h-4 w-4" />
+                        {reportData.card.totalRevenue.toFixed(2)} {CURRENCY_SYMBOL}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Summary footer - directly attached to the table above */}
+            <div className="border-t-0 border border-border rounded-b-lg overflow-hidden">
+              <div className="p-4 bg-muted/30 dark:bg-muted/20 flex flex-col md:flex-row justify-center items-center gap-4 border-t border-border">
+                <div className="flex items-center gap-4">
+                  <div className="text-4xl font-bold text-foreground">{grandTotal.toFixed(2)} {CURRENCY_SYMBOL}</div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-muted-foreground">Total Revenue</span>
+                    <span className="text-sm font-medium text-foreground">{totalSessions} Sessions</span>
+                  </div>
                 </div>
               </div>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex justify-between items-center gap-2">
+        <AlertDialogFooter className="flex justify-between items-center gap-2 mt-4">
           <div className="text-sm text-muted-foreground">
             Generated on {format(new Date(), 'MMM d, yyyy HH:mm')}
           </div>
