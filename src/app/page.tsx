@@ -13,41 +13,8 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { isBefore, startOfDay, subDays, subWeeks, subMonths } from "date-fns"
 
 export default function Home() {
-  const [activeSessions, setActiveSessions] = useState(0)
-  const [totalRevenue, setTotalRevenue] = useState(0)
   const [isReportOpen, setIsReportOpen] = useState(false)
   const [isResetOpen, setIsResetOpen] = useState(false)
-
-  // Load initial count of active sessions and total revenue on mount
-  useEffect(() => {
-    // This uses both activeSessions and totalRevenue variables
-    // to avoid ESLint unused variable warnings
-    document.title = `Squash4All | ${activeSessions} active, ${totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`
-  }, [activeSessions, totalRevenue]);
-
-  const handleSessionStart = () => {
-    setActiveSessions((prev) => prev + 1)
-    toast.success("Session started", {
-      description: "The court is now in use",
-      position: "bottom-right",
-    })
-  }
-
-  const handleSessionEnd = (revenue: number | null) => {
-    setActiveSessions((prev) => prev - 1)
-    if (revenue !== null) {
-      setTotalRevenue((prev) => prev + revenue)
-      toast.success(`Session completed: ${revenue.toFixed(2)} ${CURRENCY_SYMBOL}`, {
-        description: "Revenue has been added to the total",
-        position: "bottom-right",
-      })
-    } else {
-      toast.info("Session cancelled", {
-        description: "No revenue was recorded for this session",
-        position: "bottom-right",
-      })
-    }
-  }
 
   interface Session {
     endTime?: string;
@@ -105,10 +72,6 @@ export default function Home() {
       // Save the updated data back to localStorage
       localStorage.setItem('squash4all_sessions', JSON.stringify(parsedData))
 
-      // Reset the total revenue since we can't accurately know what was from today
-      if (timeframe === 'all') {
-        setTotalRevenue(0)
-      }
 
       // Show success message
       toast.success(`History reset complete`, {
@@ -164,9 +127,11 @@ export default function Home() {
 
               <ThemeToggle />
 
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted rounded-full text-xs text-muted-foreground font-medium">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                {new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+              <div className="hidden md:flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-full text-xs text-muted-foreground font-medium">
+                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                  {new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                </div>
               </div>
             </div>
           </div>
@@ -192,8 +157,6 @@ export default function Home() {
                     type="squash"
                     courtNumber={index + 1}
                     hourlyRate={BASE_RATES.squash}
-                    onSessionStart={handleSessionStart}
-                    onSessionEnd={handleSessionEnd}
                   />
                 </motion.div>
               ))}
@@ -209,8 +172,6 @@ export default function Home() {
                   name="Table Tennis"
                   type="table-tennis"
                   hourlyRate={BASE_RATES.tableTennis}
-                  onSessionStart={handleSessionStart}
-                  onSessionEnd={handleSessionEnd}
                 />
               </motion.div>
             </div>
