@@ -31,8 +31,6 @@ export interface Session {
   startTime: Date | null
   endTime: Date | null
   scheduledStartTime?: Date
-  scheduledDate?: string // Added field for date selection
-  scheduledTime?: string // Added field for time selection
   scheduledDuration: number // in hours
   actualDuration?: number // in seconds
   status: 'upcoming' | 'active' | 'finished'
@@ -41,7 +39,6 @@ export interface Session {
   isStudent: boolean
   selectedTimeInterval: string | null
   paymentStatus?: 'paid' | 'unpaid' | 'canceled'
-  paymentMethod?: 'cash' | 'card' | null
   notes?: string
   type: "squash" | "table-tennis" // The court type
   hourlyRate: number // Base hourly rate
@@ -134,20 +131,20 @@ export const TIME_INTERVAL_OPTIONS: TimeIntervalOption[] = [
     value: "day", 
     price: 50,
     description: "Standard day rate",
-    icon: React.createElement(Clock, { className: "h-4 w-4" })
+    icon: <Clock className="h-4 w-4" />
   },
   { 
     label: "Evening (17-23)", 
     value: "evening", 
     price: 80,
     description: "Premium evening hours",
-    icon: React.createElement(Clock, { className: "h-4 w-4" })
+    icon: <Clock className="h-4 w-4" />
   },
   { 
     label: "Weekend", 
     value: "weekend", 
     price: 80,
     description: "Saturday & Sunday",
-    icon: React.createElement(Users, { className: "h-4 w-4" })
+    icon: <Users className="h-4 w-4" />
   },
 ]

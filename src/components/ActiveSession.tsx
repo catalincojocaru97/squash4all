@@ -1,0 +1,464 @@
+import React, { useState, useEffect, useCallback } from "react"
+import { Button } from "@/components/ui/button"
+import { Session, CURRENCY_SYMBOL, ADDITIONAL_ITEMS, STUDENT_PRICE, TIME_INTERVAL_OPTIONS } from "@/types"
+import { 
+  CircleDollarSign, 
+  Clock, 
+  ShoppingCart, 
+  Coffee, 
+  ChevronDown, 
+  ChevronUp, 
+  Plus, 
+  Minus, 
+  Award,
+  Users
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { EndSessionDialog } from "@/components/EndSessionDialog"
+
+// Define time intervals for selection with enhanced styling
+// Moved to types/index.ts
+// const TIME_INTERVAL_OPTIONS = [...]; 
+
+interface ActiveSessionProps {
+  session: Session
+  onEnd: (finalCost: number, paymentMethod?: 'cash' | 'card') => void
+  onAddItems: (items: { itemId: string; quantity: number }[]) => void
+  onUpdateSessionDetails: (updates: { isStudent?: boolean; selectedTimeInterval?: string }) => void
+}
+
+export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetails }: ActiveSessionProps) {
+  const [time, setTime] = useState<number>(session.actualDuration || 0)
+  const [currentCost, setCurrentCost] = useState<number>(session.cost)
+  const [items, setItems] = useState(session.items)
+  
+  // Collapsible sections
+  const [additionalItemsExpanded, setAdditionalItemsExpanded] = useState(false)
+  const [refreshmentItemsExpanded, setRefreshmentItemsExpanded] = useState(false)
+  const [rateOptionsExpanded, setRateOptionsExpanded] = useState(false)
+  
+  // Format time in hours and minutes
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    return `${hours}h ${minutes.toString().padStart(2, '0')}m`
+  }
+  
+  // Calculate cost based on session rate and rental hours (not elapsed time)
+  const getSessionRate = useCallback(() => {
+    // Get base rate from session
+    const baseRate = session.isStudent ? STUDENT_PRICE : 
+      session.type === "squash" ? 
+        (session.selectedTimeInterval === "day" ? 50 : 
+        session.selectedTimeInterval === "evening" ? 80 : 
+        session.selectedTimeInterval === "weekend" ? 80 : 50) : 
+        session.hourlyRate
+        
+    return baseRate
+  }, [session.isStudent, session.selectedTimeInterval, session.type, session.hourlyRate])
+  
+  // Calculate total cost
+  const getSessionCost = useCallback(() => {
+    // Calculate based on scheduled duration, not elapsed time
+    const courtCost = getSessionRate() * session.scheduledDuration
+    
+    // Add additional items cost
+    const additionalCost = items.reduce((total, item) => {
+      const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId)
+      return total + (itemDef?.price || 0) * item.quantity
+    }, 0)
+    
+    return courtCost + additionalCost
+  }, [getSessionRate, session.scheduledDuration, items])
+  
+  // Update timer and cost
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(prevTime => prevTime + 1)
+    }, 1000)
+    
+    return () => clearInterval(interval)
+  }, [])
+  
+  // Effect to update local currentCost when session details or items change
+  useEffect(() => {
+    const newCost = getSessionCost();
+    setCurrentCost(newCost);
+  }, [session.isStudent, session.selectedTimeInterval, session.scheduledDuration, items, getSessionCost]);
+  
+  // Handle adding/removing items
+  const handleItemChange = (itemId: string, quantity: number) => {
+    const newItems = items.filter((item) => item.itemId !== itemId);
+    if (quantity > 0) {
+      newItems.push({ itemId, quantity });
+    }
+    
+    // Update local state
+    setItems(newItems);
+    
+    // Update items in parent component with the new items array
+    onAddItems(newItems);
+  }
+  
+  // Handle session end with payment
+  const handleEndSessionWithPayment = (paymentMethod: 'cash' | 'card') => {
+    // Calculate the current cost based on the session's state
+    const finalCost = getSessionCost();
+    
+    // Log the payment for debugging
+    console.log('Completing payment with amount:', finalCost, 'Method:', paymentMethod);
+    
+    // Pass the current cost and payment method to the parent component
+    onEnd(finalCost, paymentMethod);
+  }
+  
+  // Handle session end without payment
+  const handleEndSessionWithoutPayment = () => {
+    onEnd(0) // No charge
+  }
+  
+  // Rate interval change handler - call parent via onUpdateSessionDetails
+  const handleTimeIntervalChange = (value: string) => {
+    let studentUpdate = {};
+    // If changing to non-day and student rate is active, signal to disable student rate
+    if (value !== 'day' && session.isStudent) {
+      studentUpdate = { isStudent: false };
+    }
+    // Call the parent to update the session state
+    onUpdateSessionDetails({ selectedTimeInterval: value, ...studentUpdate });
+  };
+  
+  // Student status change handler - call parent via onUpdateSessionDetails
+  const handleStudentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation(); // Keep stopPropagation
+    const newIsStudent = e.target.checked;
+    // Call the parent to update the session state
+    onUpdateSessionDetails({ isStudent: newIsStudent });
+  };
+  
+  return (
+    <div className="space-y-4">
+      {/* Session info */}
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="font-medium">{session.playerName}</div>
+          {session.contactInfo && (
+            <div className="text-sm text-gray-500">{session.contactInfo}</div>
+          )}
+        </div>
+        
+        {/* Timer display */}
+        <div className="text-right">
+          <div className="text-sm text-gray-500">Elapsed Time</div>
+          <div className="text-lg font-semibold">{formatTime(time)}</div>
+        </div>
+      </div>
+      
+      <div className="bg-gray-50 p-3 rounded-lg space-y-2">
+        {/* Rate info */}
+        <div className="text-sm text-gray-600">
+          {session.type === "squash" ? (
+            session.isStudent ? 
+              "Student Rate" : 
+              session.selectedTimeInterval === "day" ? 
+                "Day Rate (7-17)" : 
+                session.selectedTimeInterval === "evening" ? 
+                  "Evening Rate (17-23)" : 
+                  "Weekend Rate"
+          ) : (
+            "Fixed Rate"
+          )}: {getSessionRate().toFixed(2)} {CURRENCY_SYMBOL}/hour
+        </div>
+        
+        {/* Booking info */}
+        <div className="text-sm">
+          <span className="text-gray-600">Booked for:</span> <span className="font-medium">{session.scheduledDuration} {session.scheduledDuration === 1 ? 'hour' : 'hours'}</span>
+        </div>
+      </div>
+      
+      {/* Current cost */}
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-gray-600">Total Cost</div>
+        <div className="text-xl font-bold">{currentCost.toFixed(2)} {CURRENCY_SYMBOL}</div>
+      </div>
+      
+      {/* Rate Options - Only for Squash Courts */}
+      {session.type === "squash" && (
+        <div className="rounded-md border border-gray-200 overflow-hidden">
+          <button 
+            onClick={() => setRateOptionsExpanded(prev => !prev)}
+            className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+          >
+            <div className="flex items-center gap-2">
+              <CircleDollarSign className="h-4 w-4 text-purple-500" />
+              <span>Rate Options</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="text-xs text-gray-500 mr-1">{
+                session.isStudent ? "Student Rate" : 
+                session.selectedTimeInterval === "day" ? "Day Rate" :
+                session.selectedTimeInterval === "evening" ? "Evening Rate" : "Weekend Rate"
+              }</div>
+              {rateOptionsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </div>
+          </button>
+          
+          <AnimatePresence>
+            {rateOptionsExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="p-2 bg-gray-50/50" onClick={(e) => e.stopPropagation()}>
+                  <Tabs value={session.selectedTimeInterval || "day"} onValueChange={handleTimeIntervalChange} className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 mb-2" onClick={(e) => e.stopPropagation()}>
+                      {TIME_INTERVAL_OPTIONS.map((option) => (
+                        <TabsTrigger 
+                          key={option.value} 
+                          value={option.value} 
+                          className="text-xs"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {option.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    
+                    {TIME_INTERVAL_OPTIONS.map((option) => (
+                      <TabsContent key={option.value} value={option.value} className="mt-1">
+                        <div className="rounded-md bg-white p-2.5 text-sm">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              {option.icon}
+                              <div className="font-medium">{option.price} {CURRENCY_SYMBOL}</div>
+                            </div>
+                            <div className="text-xs text-gray-500">{option.description}</div>
+                          </div>
+                          
+                          {option.value === 'day' && (
+                            <div className="mt-2.5 pt-2 border-t border-gray-100">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={session.isStudent}
+                                  onChange={handleStudentChange}
+                                  className="rounded border-green-500 text-green-500 focus:ring-green-500/25"
+                                />
+                                <div className="flex items-center gap-1.5">
+                                  <Award className="h-3.5 w-3.5 text-green-500" />
+                                  <span className="text-sm">Student Rate ({STUDENT_PRICE} {CURRENCY_SYMBOL})</span>
+                                </div>
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+      
+      {/* Equipment Section */}
+      <div className="rounded-md border border-gray-200 overflow-hidden">
+        <button 
+          onClick={() => setAdditionalItemsExpanded(prev => !prev)}
+          className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+        >
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="h-4 w-4 text-blue-500" />
+            <span>Equipment</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {items.filter(item => {
+              const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
+              return itemDef?.category === 'equipment';
+            }).length > 0 && (
+              <div className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                {items.filter(item => {
+                  const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
+                  return itemDef?.category === 'equipment';
+                }).reduce((sum, item) => sum + item.quantity, 0)}
+              </div>
+            )}
+            {additionalItemsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </div>
+        </button>
+        
+        <AnimatePresence>
+          {additionalItemsExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="p-3 bg-gray-50/50" onClick={(e) => e.stopPropagation()}>
+                <div className="space-y-1.5">
+                  {ADDITIONAL_ITEMS.filter(item => item.category === 'equipment').map((item) => (
+                    <div key={item.id} className={cn(
+                      "flex items-center justify-between py-1.5 px-2 rounded-md",
+                      (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "bg-blue-50" : "bg-white"
+                    )}>
+                      <div>
+                        <p className="text-sm font-medium">{item.name}</p>
+                        <p className="text-xs text-gray-500">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentQty = items.find(i => i.itemId === item.id)?.quantity || 0;
+                            if (currentQty > 0) {
+                              handleItemChange(item.id, currentQty - 1);
+                            }
+                          }}
+                          className={cn(
+                            "p-1 rounded-full transition-colors",
+                            (items.find(i => i.itemId === item.id)?.quantity || 0) > 0
+                              ? "text-red-500 hover:bg-red-100"
+                              : "text-gray-300"
+                          )}
+                          disabled={(items.find(i => i.itemId === item.id)?.quantity || 0) === 0}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className={cn(
+                          "w-5 text-center text-sm font-medium transition-colors",
+                          (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-blue-600" : "text-gray-400"
+                        )}>
+                          {items.find(i => i.itemId === item.id)?.quantity || 0}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentQty = items.find(i => i.itemId === item.id)?.quantity || 0;
+                            handleItemChange(item.id, currentQty + 1);
+                          }}
+                          className="p-1 rounded-full text-green-500 hover:bg-green-100 transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      
+      {/* Refreshments Section */}
+      <div className="rounded-md border border-gray-200 overflow-hidden">
+        <button 
+          onClick={() => setRefreshmentItemsExpanded(prev => !prev)}
+          className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+        >
+          <div className="flex items-center gap-2">
+            <Coffee className="h-4 w-4 text-green-500" />
+            <span>Refreshments</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {items.filter(item => {
+              const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
+              return itemDef?.category === 'refreshment';
+            }).length > 0 && (
+              <div className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                {items.filter(item => {
+                  const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
+                  return itemDef?.category === 'refreshment';
+                }).reduce((sum, item) => sum + item.quantity, 0)}
+              </div>
+            )}
+            {refreshmentItemsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </div>
+        </button>
+        
+        <AnimatePresence>
+          {refreshmentItemsExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="p-3 bg-gray-50/50" onClick={(e) => e.stopPropagation()}>
+                <div className="space-y-1.5">
+                  {ADDITIONAL_ITEMS.filter(item => item.category === 'refreshment').map((item) => (
+                    <div key={item.id} className={cn(
+                      "flex items-center justify-between py-1.5 px-2 rounded-md",
+                      (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "bg-green-50" : "bg-white"
+                    )}>
+                      <div>
+                        <p className="text-sm font-medium">{item.name}</p>
+                        <p className="text-xs text-gray-500">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentQty = items.find(i => i.itemId === item.id)?.quantity || 0;
+                            if (currentQty > 0) {
+                              handleItemChange(item.id, currentQty - 1);
+                            }
+                          }}
+                          className={cn(
+                            "p-1 rounded-full transition-colors",
+                            (items.find(i => i.itemId === item.id)?.quantity || 0) > 0
+                              ? "text-red-500 hover:bg-red-100"
+                              : "text-gray-300"
+                          )}
+                          disabled={(items.find(i => i.itemId === item.id)?.quantity || 0) === 0}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className={cn(
+                          "w-5 text-center text-sm font-medium transition-colors",
+                          (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-green-600" : "text-gray-400"
+                        )}>
+                          {items.find(i => i.itemId === item.id)?.quantity || 0}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentQty = items.find(i => i.itemId === item.id)?.quantity || 0;
+                            handleItemChange(item.id, currentQty + 1);
+                          }}
+                          className="p-1 rounded-full text-green-500 hover:bg-green-100 transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      
+      {/* Action button */}
+      <EndSessionDialog
+        session={session}
+        currentCost={currentCost}
+        elapsedTime={time}
+        items={items}
+        getSessionRate={getSessionRate}
+        onCompleteWithPayment={handleEndSessionWithPayment}
+        onCancelWithoutPayment={handleEndSessionWithoutPayment}
+      />
+    </div>
+  )
+} 

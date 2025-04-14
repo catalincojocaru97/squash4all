@@ -127,39 +127,6 @@ export function Court({
     };
   }, [isActive, rentalHours, getCourtRate, calculateAdditionalCost]);
 
-  // Display billing information
-  const displayRateInfo = () => {
-    if (type === "squash") {
-      if (isStudent && canApplyStudentRate) {
-        return `Student rate: ${STUDENT_PRICE} ${CURRENCY_SYMBOL}`
-      } else {
-        const option = selectedTimeInterval 
-          ? TIME_INTERVAL_OPTIONS.find(opt => opt.value === selectedTimeInterval)
-          : null
-          
-        if (option) {
-          return `${option.label}: ${option.price} ${CURRENCY_SYMBOL}`
-        } else if (sessionStartTime) {
-          const day = sessionStartTime.getDay()
-          const isWeekend = day === 0 || day === 6
-          const hour = sessionStartTime.getHours()
-          
-          if (isWeekend) {
-            return `Weekend rate: 80 ${CURRENCY_SYMBOL}`
-          } else if (hour >= 7 && hour < 17) {
-            return `Day rate (7-17): 50 ${CURRENCY_SYMBOL}`
-          } else if (hour >= 17 && hour < 23) {
-            return `Evening rate (17-23): 80 ${CURRENCY_SYMBOL}`
-          }
-        }
-      }
-    } else {
-      // Table tennis
-      return `Fixed rate: ${hourlyRate} ${CURRENCY_SYMBOL}`
-    }
-    return ""
-  }
-
   const handleSessionToggle = () => {
     if (isActive) {
       // End session
@@ -221,7 +188,16 @@ export function Court({
         <div className="space-y-4">
           {isActive && (
             <div className="text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded">
-              {displayRateInfo()}
+              {type === "squash" ? (
+                isStudent && canApplyStudentRate ? 
+                  `Student rate: ${STUDENT_PRICE} ${CURRENCY_SYMBOL}` :
+                  selectedTimeInterval ? 
+                    `${TIME_INTERVAL_OPTIONS.find(opt => opt.value === selectedTimeInterval)?.label || ''}: 
+                    ${TIME_INTERVAL_OPTIONS.find(opt => opt.value === selectedTimeInterval)?.price || ''} ${CURRENCY_SYMBOL}` :
+                    ''
+              ) : (
+                `Fixed rate: ${hourlyRate} ${CURRENCY_SYMBOL}`
+              )}
             </div>
           )}
           <div className="text-xl font-bold">{cost.toFixed(2)} {CURRENCY_SYMBOL}</div>
