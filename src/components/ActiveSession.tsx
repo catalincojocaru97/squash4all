@@ -609,19 +609,6 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Action button */}
-      <div className="mt-4">
-        <EndSessionDialog
-          session={session}
-          currentCost={currentCost}
-          elapsedTime={time}
-          items={items}
-          getSessionRate={getSessionRate}
-          onCompleteWithPayment={handleEndSessionWithPayment}
-          onCancelWithoutPayment={handleEndSessionWithoutPayment}
-        />
-      </div>
     </div>
   )
 } 

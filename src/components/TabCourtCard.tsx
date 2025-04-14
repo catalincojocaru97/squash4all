@@ -190,9 +190,9 @@ export function TabCourtCard({
           </div>
         </CardHeader>
         
-        <CardContent className="flex-grow overflow-y-auto custom-scrollbar pb-4">
-          <Tabs defaultValue="active" className="w-full">
-            <div className="mb-4">
+        <CardContent className="flex-grow overflow-hidden flex flex-col p-0">
+          <Tabs defaultValue="active" className="w-full flex flex-col h-full">
+            <div className="px-4 pt-4 pb-2 flex-shrink-0">
               <div className="bg-card rounded-md p-1.5 flex border border-border">
                 <TabsList className="bg-transparent p-0 w-full flex justify-between">
                   <TabsTrigger value="upcoming" className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm rounded-md data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:bg-muted/80 data-[state=active]:text-foreground">
@@ -211,7 +211,7 @@ export function TabCourtCard({
               </div>
             </div>
             
-            <TabsContent value="upcoming" className="space-y-4">
+            <TabsContent value="upcoming" className="space-y-4 p-4 overflow-y-auto custom-scrollbar flex-grow">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-sm font-medium text-foreground">Upcoming Bookings</h3>
                 <Button onClick={handleCreateBooking} size="sm" className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground">
@@ -234,13 +234,29 @@ export function TabCourtCard({
               )}
             </TabsContent>
             
-            <TabsContent value="active">
+            <TabsContent value="active" className="flex flex-col h-full overflow-hidden">
               {activeSession ? (
-                <ActiveTab 
-                  activeSession={activeSession} // Pass the session state from the hook
-                  onUpdateSession={updateActiveSession} // Pass the update function from the hook
-                  onEndSession={handleEndSession} // Pass the end handler
-                />
+                <div className="flex flex-col h-full">
+                  <div className="overflow-y-auto custom-scrollbar flex-grow px-4">
+                    <ActiveSession 
+                      session={activeSession} 
+                      onEnd={handleEndSession}
+                      onAddItems={(items) => updateActiveSession({ items })}
+                      onUpdateSessionDetails={(updates) => updateActiveSession(updates)}
+                    />
+                  </div>
+                  <div className="px-4 pb-4 pt-2 flex-shrink-0 border-t border-border mt-2">
+                    <EndSessionDialog
+                      session={activeSession}
+                      currentCost={activeSession.cost}
+                      elapsedTime={activeSession.actualDuration || 0}
+                      items={activeSession.items}
+                      getSessionRate={() => activeSession.hourlyRate}
+                      onCompleteWithPayment={(paymentMethod) => handleEndSession(activeSession.cost, paymentMethod)}
+                      onCancelWithoutPayment={() => handleEndSession(0)}
+                    />
+                  </div>
+                </div>
               ) : (
                 <EmptyState
                   message="No active session"
@@ -253,7 +269,7 @@ export function TabCourtCard({
               )}
             </TabsContent>
             
-            <TabsContent value="finished" className="space-y-4">
+            <TabsContent value="finished" className="space-y-4 p-4 overflow-y-auto custom-scrollbar flex-grow">
               {finishedSessions.length > 0 ? (
                 <SessionList 
                   sessions={finishedSessions}
