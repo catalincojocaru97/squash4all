@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useCallback } from "react"
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -8,8 +8,8 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { FileText, Calendar, ArrowDownToLine, ChevronUp, CreditCard, Banknote, Clock, Award, ShoppingCart, Coffee, DollarSign, Users } from "lucide-react"
-import { CURRENCY_SYMBOL, ADDITIONAL_ITEMS, TIME_INTERVAL_OPTIONS, Session } from "@/types"
+import { FileText, Calendar, CreditCard, Banknote, Clock, Award, ShoppingCart, Coffee, Users } from "lucide-react"
+import { CURRENCY_SYMBOL, ADDITIONAL_ITEMS, Session } from "@/types"
 import { format, isSameDay } from "date-fns"
 
 interface DayReportDialogProps {
@@ -57,14 +57,8 @@ export function DayReportDialog({
     }
   });
   
-  // Load and process data when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      loadReportData();
-    }
-  }, [isOpen, date]);
-  
-  const loadReportData = () => {
+  // Define loadReportData with useCallback
+  const loadReportData = useCallback(() => {
     try {
       // Initialize empty report structure
       const newReport: ReportData = {
@@ -158,7 +152,14 @@ export function DayReportDialog({
       console.error('Error loading report data:', error);
       // Show a simple error message or fallback to empty data
     }
-  };
+  }, [date, setReportData]);
+  
+  // Load and process data when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      loadReportData();
+    }
+  }, [isOpen, loadReportData]);
   
   // Calculate totals
   const grandTotal = reportData.cash.totalRevenue + reportData.card.totalRevenue;
