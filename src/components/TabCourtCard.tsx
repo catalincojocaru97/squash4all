@@ -241,7 +241,6 @@ export function TabCourtCard({
                   <div className="overflow-y-auto custom-scrollbar flex-grow px-4">
                     <ActiveSession 
                       session={activeSession} 
-                      onEnd={handleEndSession}
                       onAddItems={(items) => updateActiveSession({ items })}
                       onUpdateSessionDetails={(updates) => updateActiveSession(updates)}
                     />
