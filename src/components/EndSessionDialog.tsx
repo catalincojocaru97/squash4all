@@ -11,7 +11,7 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { Ban, Check, Coffee, ShoppingCart, Clock, CheckCircle, CircleDollarSign, CreditCard, Banknote } from "lucide-react"
+import { Ban, Coffee, ShoppingCart, CheckCircle, CreditCard, Banknote } from "lucide-react"
 import { Session, ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, TIME_INTERVAL_OPTIONS } from "@/types"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"

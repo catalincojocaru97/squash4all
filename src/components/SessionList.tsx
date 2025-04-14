@@ -1,7 +1,7 @@
 import { Session, CURRENCY_SYMBOL } from "@/types"
 import { Button } from "@/components/ui/button"
-import { format, parseISO } from "date-fns"
-import { Edit, Play, Trash, MoreHorizontal, Calendar, Clock, Banknote, CreditCard } from "lucide-react"
+import { format } from "date-fns"
+import { Edit, Play, Trash, MoreHorizontal, Clock, Banknote, CreditCard } from "lucide-react"
 
 interface SessionListProps {
   sessions: Session[]

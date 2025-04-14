@@ -3,15 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Session, CURRENCY_SYMBOL, Court, STUDENT_PRICE } from "@/types"
+import { Session } from "@/types"
 import { useCourtSessions } from "@/hooks/useCourtSessions"
 import { SessionList } from "@/components/SessionList"
 import { ActiveSession } from "@/components/ActiveSession"
 import { EmptyState } from "@/components/EmptyState"
 import { BookingDialog } from "@/components/BookingDialog"
 import { EndSessionDialog } from "@/components/EndSessionDialog"
-import { Calendar, Clock, CircleDollarSign, Users, CircleSlash, ChevronUp, ChevronDown, Award, Plus } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { Calendar, Clock, CircleDollarSign, Users, Plus } from "lucide-react"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface TabCourtCardProps {
@@ -23,31 +23,6 @@ interface TabCourtCardProps {
   onSessionStart?: () => void
   onSessionEnd?: (revenue: number) => void
 }
-
-// Define time intervals for selection with enhanced styling
-const TIME_INTERVAL_OPTIONS = [
-  { 
-    label: "Day (7-17)", 
-    value: "day", 
-    price: 50,
-    description: "Standard day rate",
-    icon: <Clock className="h-4 w-4" />
-  },
-  { 
-    label: "Evening (17-23)", 
-    value: "evening", 
-    price: 80,
-    description: "Premium evening hours",
-    icon: <Clock className="h-4 w-4" />
-  },
-  { 
-    label: "Weekend", 
-    value: "weekend", 
-    price: 80,
-    description: "Saturday & Sunday",
-    icon: <Users className="h-4 w-4" />
-  },
-]
 
 // Active Tab showing current active session
 // Moved definition outside TabCourtCard for clarity and performance

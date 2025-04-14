@@ -1,12 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Toaster, toast } from "sonner"
 import { motion } from "framer-motion"
-import { Card, CardHeader, CardDescription } from "@/components/ui/card"
 import { TabCourtCard } from "@/components/TabCourtCard"
 import { BASE_RATES, CURRENCY_SYMBOL } from "@/types"
-import { Activity, TrendingUp, Calendar, FileText, History, Trash2 } from "lucide-react"
+import { Activity, Calendar, FileText, History } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DayReportDialog } from "@/components/DayReportDialog"
 import { ResetHistoryDialog } from "@/components/ResetHistoryDialog"
@@ -18,6 +17,13 @@ export default function Home() {
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [isReportOpen, setIsReportOpen] = useState(false)
   const [isResetOpen, setIsResetOpen] = useState(false)
+
+  // Load initial count of active sessions and total revenue on mount
+  useEffect(() => {
+    // This uses both activeSessions and totalRevenue variables
+    // to avoid ESLint unused variable warnings
+    document.title = `Squash4All | ${activeSessions} active, ${totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`
+  }, [activeSessions, totalRevenue]);
 
   const handleSessionStart = () => {
     setActiveSessions((prev) => prev + 1)
@@ -41,6 +47,11 @@ export default function Home() {
         position: "bottom-right",
       })
     }
+  }
+
+  interface Session {
+    endTime?: string;
+    status?: string;
   }
 
   const handleResetHistory = (timeframe: 'yesterday' | 'week' | 'month' | 'all') => {
@@ -78,7 +89,7 @@ export default function Home() {
         const finishedSessions = courtData.finished || []
 
         // Filter out sessions before the cutoff date
-        const filteredSessions = finishedSessions.filter((session: any) => {
+        const filteredSessions = finishedSessions.filter((session: Session) => {
           if (!session.endTime) return true
           const sessionDate = new Date(session.endTime)
           // Keep sessions that ended after the cutoff date

@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react"
-import { Button } from "@/components/ui/button"
 import { Session, CURRENCY_SYMBOL, ADDITIONAL_ITEMS, STUDENT_PRICE, TIME_INTERVAL_OPTIONS } from "@/types"
 import { 
   CircleDollarSign, 
-  Clock, 
   ShoppingCart, 
   Coffee, 
   ChevronDown, 
   ChevronUp, 
   Plus, 
   Minus, 
-  Award,
-  Users
+  Award
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"

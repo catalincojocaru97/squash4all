@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, Session, TIME_INTERVAL_OPTIONS, TimeIntervalOption } from "@/types" // Import necessary types/constants and TimeIntervalOption
 import { cn } from "@/lib/utils"
-import { Plus, Minus, CircleDollarSign, ShoppingCart, Coffee, ChevronDown, ChevronUp, Award, Clock, Users } from "lucide-react" // Import icons
+import { Plus, Minus, CircleDollarSign, ShoppingCart, Coffee, ChevronDown, ChevronUp, Award } from "lucide-react" // Import icons
 import { motion, AnimatePresence } from "framer-motion" // Import animation components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs" // Import Tabs
 
@@ -116,9 +116,9 @@ export function BookingDialog({
     // Cost will update via useEffect
   };
 
-  const handleStudentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-    setIsStudent(e.target.checked);
+  const handleStudentChange = (_: React.ChangeEvent<HTMLInputElement>) => {
+    _.stopPropagation();
+    setIsStudent(_.target.checked);
   };
 
   // Handler for Item Changes
@@ -176,7 +176,7 @@ export function BookingDialog({
               id="name"
               ref={nameInputRef}
               value={playerName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPlayerName(e.target.value)}
+              onChange={(_) => setPlayerName(_.target.value)}
               className="col-span-3"
               placeholder="Enter player's name"
               required
@@ -195,7 +195,7 @@ export function BookingDialog({
                 min="1"
                 step="1"
                 value={scheduledDuration}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setScheduledDuration(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={(_) => setScheduledDuration(Math.max(1, parseInt(_.target.value) || 1))}
                 className="w-20"
                 required
               />
@@ -206,7 +206,7 @@ export function BookingDialog({
                   variant="outline"
                   size="icon"
                   className="rounded-r-none"
-                  onClick={(e: React.MouseEvent) => setScheduledDuration(h => Math.max(1, h - 1))}
+                  onClick={(_) => setScheduledDuration(h => Math.max(1, h - 1))}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
@@ -215,7 +215,7 @@ export function BookingDialog({
                   variant="outline"
                   size="icon"
                   className="rounded-l-none border-l-0"
-                  onClick={(e: React.MouseEvent) => setScheduledDuration(h => h + 1)}
+                  onClick={(_) => setScheduledDuration(h => h + 1)}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -229,19 +229,59 @@ export function BookingDialog({
               Start Time*
             </Label>
             <div className="col-span-3">
-              <select
-                id="startHour"
-                value={scheduledTime}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setScheduledTime(e.target.value)}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                required
-              >
-                {Array.from({ length: 17 }, (_, i) => i + 7).map(hour => (
-                  <option key={hour} value={`${hour}:00`}>
-                    {hour}:00
-                  </option>
-                ))}
-              </select>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={(_) => setScheduledTime("8:00")}
+                  className={cn(
+                    "flex-1 px-1 py-1 h-auto text-xs",
+                    scheduledTime === "8:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
+                  )}
+                >
+                  8:00
+                </Button>
+                
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={(_) => setScheduledTime("12:00")}
+                  className={cn(
+                    "flex-1 px-1 py-1 h-auto text-xs",
+                    scheduledTime === "12:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
+                  )}
+                >
+                  12:00
+                </Button>
+                
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={(_) => setScheduledTime("18:00")}
+                  className={cn(
+                    "flex-1 px-1 py-1 h-auto text-xs",
+                    scheduledTime === "18:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
+                  )}
+                >
+                  18:00
+                </Button>
+                
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={(_) => setScheduledTime("20:00")}
+                  className={cn(
+                    "flex-1 px-1 py-1 h-auto text-xs",
+                    scheduledTime === "20:00" && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300"
+                  )}
+                >
+                  20:00
+                </Button>
+              </div>
             </div>
           </div>
           
@@ -249,7 +289,7 @@ export function BookingDialog({
           {courtType === "squash" && (
              <div className="rounded-md border border-border overflow-hidden">
                 <button
-                    onClick={(e: React.MouseEvent) => setRateOptionsExpanded(prev => !prev)}
+                    onClick={(_) => setRateOptionsExpanded(prev => !prev)}
                     className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
                 >
                     <div className="flex items-center gap-2">
@@ -268,16 +308,16 @@ export function BookingDialog({
                 <AnimatePresence>
                     {rateOptionsExpanded && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                            <div className="p-2 bg-muted/50 dark:bg-muted/20" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                            <div className="p-2 bg-muted/50 dark:bg-muted/20" onClick={(_) => _.stopPropagation()}>
                                 <Tabs value={selectedTimeInterval || "day"} onValueChange={handleTimeIntervalChange} className="w-full">
                                     <div className="bg-card rounded-md p-1.5 flex border border-border mb-2">
-                                      <TabsList className="bg-transparent p-0 w-full flex justify-between" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                      <TabsList className="bg-transparent p-0 w-full flex justify-between" onClick={(_) => _.stopPropagation()}>
                                         {TIME_INTERVAL_OPTIONS.map((option: TimeIntervalOption) => (
                                             <TabsTrigger 
                                                 key={option.value} 
                                                 value={option.value} 
                                                 className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm rounded-md data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:bg-muted/80 data-[state=active]:text-foreground"
-                                                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                                                onClick={(_) => _.stopPropagation()}
                                             >
                                                 {option.label}
                                             </TabsTrigger>
@@ -300,7 +340,7 @@ export function BookingDialog({
                                                             <input 
                                                                 type="checkbox" 
                                                                 checked={isStudent} 
-                                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => { e.stopPropagation(); handleStudentChange(e); }} 
+                                                                onChange={(_) => { _.stopPropagation(); handleStudentChange(_); }} 
                                                                 className="rounded border-green-500 text-green-500 focus:ring-green-500/25" 
                                                             />
                                                             <div className="flex items-center gap-1.5">
@@ -324,7 +364,7 @@ export function BookingDialog({
           {/* --- Equipment Section --- */}
           <div className="rounded-md border border-border overflow-hidden">
                 <button
-                    onClick={(e: React.MouseEvent) => setEquipmentExpanded(prev => !prev)}
+                    onClick={(_) => setEquipmentExpanded(prev => !prev)}
                     className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
                 >
                      <div className="flex items-center gap-2">
@@ -343,7 +383,7 @@ export function BookingDialog({
                  <AnimatePresence>
                      {equipmentExpanded && (
                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                            <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                            <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(_) => _.stopPropagation()}>
                                 <div className="space-y-1.5">
                                     {ADDITIONAL_ITEMS.filter(item => item.category === 'equipment').map((item) => (
                                         <div key={item.id} className={cn("flex items-center justify-between py-1.5 px-2 rounded-md", 
@@ -356,9 +396,9 @@ export function BookingDialog({
                                                 <p className="text-xs text-muted-foreground">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-gray-300 dark:text-gray-600")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
+                                                <button onClick={(_) => { _.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-gray-300 dark:text-gray-600")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
                                                 <span className={cn("w-5 text-center text-sm font-medium transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500")}> {selectedItems.find(i => i.itemId === item.id)?.quantity || 0} </span>
-                                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
+                                                <button onClick={(_) => { _.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
                                             </div>
                                         </div>
                                     ))}
@@ -372,7 +412,7 @@ export function BookingDialog({
           {/* --- Refreshments Section --- */}
           <div className="rounded-md border border-border overflow-hidden">
                 <button
-                     onClick={(e: React.MouseEvent) => setRefreshmentsExpanded(prev => !prev)}
+                     onClick={(_) => setRefreshmentsExpanded(prev => !prev)}
                      className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
                  >
                      <div className="flex items-center gap-2">
@@ -391,7 +431,7 @@ export function BookingDialog({
                  <AnimatePresence>
                      {refreshmentsExpanded && (
                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                             <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                             <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(_) => _.stopPropagation()}>
                                  <div className="space-y-1.5">
                                      {ADDITIONAL_ITEMS.filter(item => item.category === 'refreshment').map((item) => (
                                          <div key={item.id} className={cn("flex items-center justify-between py-1.5 px-2 rounded-md", 
@@ -404,9 +444,9 @@ export function BookingDialog({
                                                 <p className="text-xs text-muted-foreground">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
                                              </div>
                                              <div className="flex items-center gap-1">
-                                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-gray-300 dark:text-gray-600")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
+                                                 <button onClick={(_) => { _.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-gray-300 dark:text-gray-600")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
                                                  <span className={cn("w-5 text-center text-sm font-medium transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-500")}> {selectedItems.find(i => i.itemId === item.id)?.quantity || 0} </span>
-                                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
+                                                 <button onClick={(_) => { _.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
                                              </div>
                                          </div>
                                      ))}

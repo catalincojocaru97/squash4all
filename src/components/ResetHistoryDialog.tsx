@@ -9,7 +9,7 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Trash2, AlertTriangle, Calendar, History } from "lucide-react"
+import { Trash2, AlertTriangle } from "lucide-react"
 import { format, subDays, subWeeks, subMonths } from "date-fns"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
