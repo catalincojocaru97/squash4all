@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, Session, TIME_INTERVAL_OPTIONS, TimeIntervalOption } from "@/types" // Import necessary types/constants and TimeIntervalOption
+import { ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, DISCOUNT_CARD_AMOUNT, Session, TIME_INTERVAL_OPTIONS, TimeIntervalOption } from "@/types" // Import necessary types/constants and TimeIntervalOption
 import { cn } from "@/lib/utils"
 import { Plus, Minus, CircleDollarSign, ShoppingCart, Coffee, ChevronDown, ChevronUp, Award } from "lucide-react" // Import icons
 import { motion, AnimatePresence } from "framer-motion" // Import animation components
@@ -39,6 +39,7 @@ export function BookingDialog({
   // State for new sections (mirroring ActiveSession structure)
   const [selectedItems, setSelectedItems] = useState<{ itemId: string; quantity: number }[]>([])
   const [isStudent, setIsStudent] = useState(false)
+  const [discountCards, setDiscountCards] = useState(0) // Changed from hasDiscountCard boolean to a number
   const [selectedTimeInterval, setSelectedTimeInterval] = useState<string>("day") // Default to 'day'
   const [rateOptionsExpanded, setRateOptionsExpanded] = useState(false)
   const [equipmentExpanded, setEquipmentExpanded] = useState(false)
@@ -54,6 +55,7 @@ export function BookingDialog({
         setScheduledDuration(existingSession.scheduledDuration || 1)
         setSelectedItems(existingSession.items || [])
         setIsStudent(existingSession.isStudent || false)
+        setDiscountCards(existingSession.discountCards || 0) // Set the number of discount cards
         setSelectedTimeInterval(existingSession.selectedTimeInterval || determineDefaultTimeInterval())
         setScheduledTime(existingSession.scheduledTime || "8:00")
       } else {
@@ -62,6 +64,7 @@ export function BookingDialog({
         setScheduledDuration(1)
         setSelectedItems([])
         setIsStudent(false)
+        setDiscountCards(0) // Reset discount cards to 0
         setSelectedTimeInterval(determineDefaultTimeInterval()) // Set default based on time
         setScheduledTime("8:00")
       }
@@ -99,8 +102,13 @@ export function BookingDialog({
       const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
       return total + (itemDef?.price || 0) * item.quantity;
     }, 0);
-    return courtCost + itemsCost;
-  }, [getCourtRate, scheduledDuration, selectedItems]);
+    
+    // Apply discount for card holders (multiple cards)
+    const baseTotal = courtCost + itemsCost;
+    const discountAmount = discountCards * DISCOUNT_CARD_AMOUNT;
+    
+    return Math.max(0, baseTotal - discountAmount); // Ensure cost doesn't go below 0
+  }, [getCourtRate, scheduledDuration, selectedItems, discountCards]);
 
   // Update display cost whenever relevant state changes
   useEffect(() => {
@@ -119,6 +127,17 @@ export function BookingDialog({
   const handleStudentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
     setIsStudent(e.target.checked);
+  };
+
+  // Handle discount card change - now for multiple cards
+  const increaseDiscountCards = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setDiscountCards(prev => prev + 1);
+  };
+
+  const decreaseDiscountCards = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setDiscountCards(prev => Math.max(0, prev - 1));
   };
 
   // Handler for Item Changes
@@ -142,6 +161,7 @@ export function BookingDialog({
       scheduledDuration,
       items: selectedItems,
       isStudent,
+      discountCards, // Include discount cards count
       selectedTimeInterval,
       cost: finalCost,
       type: courtType,
@@ -350,6 +370,42 @@ export function BookingDialog({
                                                         </label>
                                                     </div>
                                                 )}
+                                                <div className="flex items-center gap-2 mt-2 px-2">
+                                                    <div className="text-sm cursor-pointer flex-1">
+                                                        <span className="font-medium">Discount Cards</span>
+                                                        <span className="text-xs text-muted-foreground ml-1.5">(-{DISCOUNT_CARD_AMOUNT} {CURRENCY_SYMBOL} each)</span>
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        <button
+                                                            onClick={decreaseDiscountCards}
+                                                            className={cn(
+                                                                "p-1 rounded-full transition-colors",
+                                                                discountCards > 0
+                                                                    ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+                                                                    : "text-gray-300 dark:text-gray-600"
+                                                            )}
+                                                            disabled={discountCards === 0}
+                                                            type="button"
+                                                        >
+                                                            <Minus className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <span className={cn(
+                                                            "w-5 text-center text-sm font-medium transition-colors",
+                                                            discountCards > 0 
+                                                                ? "text-blue-600 dark:text-blue-400" 
+                                                                : "text-gray-400 dark:text-gray-500"
+                                                        )}>
+                                                            {discountCards}
+                                                        </span>
+                                                        <button
+                                                            onClick={increaseDiscountCards}
+                                                            className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                                                            type="button"
+                                                        >
+                                                            <Plus className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </TabsContent>
                                     ))}
@@ -517,6 +573,12 @@ export function BookingDialog({
                 {displayCost.toFixed(2)} {CURRENCY_SYMBOL}
               </span>
             </div>
+            {discountCards > 0 && (
+              <div className="flex justify-between items-center text-xs text-muted-foreground mt-1">
+                <span>Discount applied ({discountCards} {discountCards === 1 ? 'card' : 'cards'}):</span>
+                <span>-{(discountCards * DISCOUNT_CARD_AMOUNT).toFixed(2)} {CURRENCY_SYMBOL}</span>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground mt-1">
               Based on {scheduledDuration} hour(s), selected rate, and items.
             </p>

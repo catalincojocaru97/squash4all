@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { 
   AlertDialog,
   AlertDialogAction, 
@@ -11,8 +11,8 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { Ban, Coffee, ShoppingCart, CheckCircle, CreditCard, Banknote } from "lucide-react"
-import { Session, ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, TIME_INTERVAL_OPTIONS } from "@/types"
+import { Ban, Coffee, ShoppingCart, CheckCircle, CreditCard, Banknote, AlertCircle } from "lucide-react"
+import { Session, ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, DISCOUNT_CARD_AMOUNT, TIME_INTERVAL_OPTIONS } from "@/types"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 
@@ -220,6 +220,21 @@ export function EndSessionDialog({
                     </div>
                   </div>
 
+                  {/* Add discount cards section if applicable */}
+                  {session.discountCards > 0 && (
+                    <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-t border-border">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm font-medium text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
+                          <CreditCard className="h-3.5 w-3.5" />
+                          {session.discountCards === 1 ? 'Discount Card Applied' : `${session.discountCards} Discount Cards Applied`}
+                        </div>
+                        <div className="font-mono text-sm font-medium text-blue-700 dark:text-blue-400">
+                          -{(session.discountCards * DISCOUNT_CARD_AMOUNT).toFixed(2)} {CURRENCY_SYMBOL}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="px-4 py-3 bg-muted/50 dark:bg-muted/30 border-t border-border">
                     <div className="flex justify-between items-center">
                       <div className="text-sm font-semibold text-foreground">Total Amount</div>
@@ -395,6 +410,21 @@ export function EndSessionDialog({
                     </div>
                   </div>
 
+                  {/* Add discount cards section if applicable */}
+                  {session.discountCards > 0 && (
+                    <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-t border-border">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm font-medium text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
+                          <CreditCard className="h-3.5 w-3.5" />
+                          {session.discountCards === 1 ? 'Discount Card Applied' : `${session.discountCards} Discount Cards Applied`}
+                        </div>
+                        <div className="font-mono text-sm font-medium text-blue-700 dark:text-blue-400">
+                          -{(session.discountCards * DISCOUNT_CARD_AMOUNT).toFixed(2)} {CURRENCY_SYMBOL}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="px-4 py-3 bg-muted/50 dark:bg-muted/30 border-t border-border">
                     <div className="flex justify-between items-center">
                       <div className="text-sm font-semibold text-foreground">Total Amount</div>
@@ -417,22 +447,31 @@ export function EndSessionDialog({
                     <div className={cn(
                       "mt-1 px-3 py-1 rounded-full text-sm flex items-center gap-1.5 font-medium",
                       session.paymentMethod === 'cash'
-                        ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
-                        : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                        ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300"
+                        : "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
                     )}>
-                      {session.paymentMethod === 'cash'
-                        ? <Banknote className="h-3.5 w-3.5" />
-                        : <CreditCard className="h-3.5 w-3.5" />
-                      }
-                      Paid with {session.paymentMethod === 'cash' ? 'cash' : 'card'}
+                      {session.paymentMethod === 'cash' ? (
+                        <>
+                          <Banknote className="h-3.5 w-3.5" />
+                          Paid with Cash
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="h-3.5 w-3.5" />
+                          Paid with Card
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
                 
-                {session.notes && (
-                  <div className="border-t border-border pt-2 text-sm">
-                    <div className="font-medium">Notes</div>
-                    <p className="text-muted-foreground">{session.notes}</p>
+                {/* Cancelation Badge (if canceled) */}
+                {session.paymentStatus === 'canceled' && (
+                  <div className="flex justify-center items-center">
+                    <div className="mt-1 px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 text-sm flex items-center gap-1.5 font-medium">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      Session Canceled
+                    </div>
                   </div>
                 )}
               </div>

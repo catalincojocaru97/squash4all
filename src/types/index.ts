@@ -39,6 +39,7 @@ export interface Session {
   cost: number
   items: { itemId: string; quantity: number }[]
   isStudent: boolean
+  discountCards: number // Number of discount cards applied (changed from hasDiscountCard boolean)
   selectedTimeInterval: string | null
   paymentStatus?: 'paid' | 'unpaid' | 'canceled'
   paymentMethod?: 'cash' | 'card' | null
@@ -55,6 +56,7 @@ export const PRICE_INTERVALS: PriceInterval[] = [
 ]
 
 export const STUDENT_PRICE = 30 // Fixed price in LEI
+export const DISCOUNT_CARD_AMOUNT = 15 // Discount in LEI for seven card/esx card holders
 
 export const ADDITIONAL_ITEMS: AdditionalItem[] = [
   {
