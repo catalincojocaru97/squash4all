@@ -166,30 +166,30 @@ export function DayReportDialog({
   
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <AlertDialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background">
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2 text-xl tracking-tight">
-            <FileText className="h-5 w-5 text-blue-500" />
+          <AlertDialogTitle className="flex items-center gap-2 text-xl tracking-tight text-foreground">
+            <FileText className="h-5 w-5 text-blue-500 dark:text-blue-400" />
             Daily Activity Report
-            <span className="ml-2 text-sm font-normal text-gray-500 flex items-center">
+            <span className="ml-2 text-sm font-normal text-muted-foreground flex items-center">
               <Calendar className="h-4 w-4 mr-1" />
               {format(date, 'EEEE, MMMM d, yyyy')}
             </span>
           </AlertDialogTitle>
           <AlertDialogDescription>
-            <div className="border rounded-lg mb-4 overflow-hidden">
+            <div className="border border-border rounded-lg mb-4 overflow-hidden">
               {/* Summary header */}
-              <div className="p-4 bg-gray-50 border-b flex flex-col md:flex-row justify-between gap-4">
+              <div className="p-4 bg-muted/50 dark:bg-muted/30 border-b border-border flex flex-col md:flex-row justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="text-4xl font-bold text-gray-900">{grandTotal.toFixed(2)} {CURRENCY_SYMBOL}</div>
+                  <div className="text-4xl font-bold text-foreground">{grandTotal.toFixed(2)} {CURRENCY_SYMBOL}</div>
                   <div className="flex flex-col">
-                    <span className="text-sm text-gray-500">Total Revenue</span>
-                    <span className="text-sm font-medium text-gray-700">{totalSessions} Sessions</span>
+                    <span className="text-sm text-muted-foreground">Total Revenue</span>
+                    <span className="text-sm font-medium text-foreground">{totalSessions} Sessions</span>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-yellow-100 rounded-md text-yellow-800 font-medium">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-yellow-100 dark:bg-yellow-950/30 rounded-md text-yellow-800 dark:text-yellow-300 font-medium">
                     <Banknote className="h-4 w-4" />
                     <div className="flex flex-col">
                       <span className="text-xs">Cash</span>
@@ -197,7 +197,7 @@ export function DayReportDialog({
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 px-3 py-2 bg-green-100 rounded-md text-green-800 font-medium">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-100 dark:bg-green-950/30 rounded-md text-green-800 dark:text-green-300 font-medium">
                     <CreditCard className="h-4 w-4" />
                     <div className="flex flex-col">
                       <span className="text-xs">Card</span>
@@ -210,20 +210,20 @@ export function DayReportDialog({
               {/* Two column layout for payment methods */}
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Cash column */}
-                <div className="border-r">
-                  <div className="p-3 flex items-center justify-between bg-yellow-50 border-b">
+                <div className="border-r border-border">
+                  <div className="p-3 flex items-center justify-between bg-yellow-50 dark:bg-yellow-950/30 border-b border-border">
                     <div className="flex items-center gap-2">
-                      <Banknote className="h-5 w-5 text-yellow-700" />
-                      <h3 className="font-semibold text-yellow-900">Cash Payments</h3>
+                      <Banknote className="h-5 w-5 text-yellow-700 dark:text-yellow-500" />
+                      <h3 className="font-semibold text-yellow-900 dark:text-yellow-300">Cash Payments</h3>
                     </div>
-                    <div className="text-sm font-medium text-yellow-900">{reportData.cash.totalSessions} Sessions</div>
+                    <div className="text-sm font-medium text-yellow-900 dark:text-yellow-300">{reportData.cash.totalSessions} Sessions</div>
                   </div>
                   
                   <div className="p-4">
                     {/* Rate breakdown */}
                     <div className="mb-5">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                        <Clock className="h-4 w-4 text-gray-400" />
+                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
                         Rate Breakdown
                       </h4>
                       
@@ -233,48 +233,48 @@ export function DayReportDialog({
                           let label;
                           
                           if (rateType === 'day') {
-                            icon = <Clock className="h-4 w-4 text-gray-500" />;
+                            icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = "Day Rate (7-17)";
                           } else if (rateType === 'evening') {
-                            icon = <Clock className="h-4 w-4 text-gray-500" />;
+                            icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = "Evening Rate (17-23)";
                           } else if (rateType === 'weekend') {
-                            icon = <Users className="h-4 w-4 text-gray-500" />;
+                            icon = <Users className="h-4 w-4 text-muted-foreground" />;
                             label = "Weekend Rate";
                           } else if (rateType === 'student') {
-                            icon = <Award className="h-4 w-4 text-gray-500" />;
+                            icon = <Award className="h-4 w-4 text-muted-foreground" />;
                             label = "Student Rate";
                           } else {
-                            icon = <Clock className="h-4 w-4 text-gray-500" />;
+                            icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = rateType;
                           }
                           
                           if (data.count === 0) return null;
                           
                           return (
-                            <div key={rateType} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                            <div key={rateType} className="flex justify-between items-center p-2 bg-muted/50 dark:bg-muted/30 rounded-md">
                               <div className="flex items-center gap-2">
                                 {icon}
-                                <span className="text-sm">{label}</span>
+                                <span className="text-sm text-foreground">{label}</span>
                               </div>
                               <div className="flex gap-4">
-                                <span className="text-sm text-gray-500">{data.count}x</span>
-                                <span className="text-sm font-medium">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
+                                <span className="text-sm text-muted-foreground">{data.count}x</span>
+                                <span className="text-sm font-medium text-foreground">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
                               </div>
                             </div>
                           );
                         })}
                         
                         {Object.values(reportData.cash.rateBreakdown).every(d => d.count === 0) && (
-                          <div className="text-sm text-gray-500 text-center py-2">No rate data available</div>
+                          <div className="text-sm text-muted-foreground text-center py-2">No rate data available</div>
                         )}
                       </div>
                     </div>
                     
                     {/* Equipment */}
                     <div className="mb-5">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                        <ShoppingCart className="h-4 w-4 text-gray-400" />
+                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                         Equipment
                       </h4>
                       
@@ -284,26 +284,26 @@ export function DayReportDialog({
                           if (data.count === 0) return null;
                           
                           return (
-                            <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                              <span className="text-sm">{item?.name || key}</span>
+                            <div key={key} className="flex justify-between items-center p-2 bg-muted/50 dark:bg-muted/30 rounded-md">
+                              <span className="text-sm text-foreground">{item?.name || key}</span>
                               <div className="flex gap-4">
-                                <span className="text-sm text-gray-500">{data.count}x</span>
-                                <span className="text-sm font-medium">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
+                                <span className="text-sm text-muted-foreground">{data.count}x</span>
+                                <span className="text-sm font-medium text-foreground">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
                               </div>
                             </div>
                           );
                         })}
                         
                         {Object.keys(reportData.cash.equipment).length === 0 && (
-                          <div className="text-sm text-gray-500 text-center py-2">No equipment data available</div>
+                          <div className="text-sm text-muted-foreground text-center py-2">No equipment data available</div>
                         )}
                       </div>
                     </div>
                     
                     {/* Refreshments */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                        <Coffee className="h-4 w-4 text-gray-400" />
+                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                        <Coffee className="h-4 w-4 text-muted-foreground" />
                         Refreshments
                       </h4>
                       
@@ -313,18 +313,18 @@ export function DayReportDialog({
                           if (data.count === 0) return null;
                           
                           return (
-                            <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                              <span className="text-sm">{item?.name || key}</span>
+                            <div key={key} className="flex justify-between items-center p-2 bg-muted/50 dark:bg-muted/30 rounded-md">
+                              <span className="text-sm text-foreground">{item?.name || key}</span>
                               <div className="flex gap-4">
-                                <span className="text-sm text-gray-500">{data.count}x</span>
-                                <span className="text-sm font-medium">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
+                                <span className="text-sm text-muted-foreground">{data.count}x</span>
+                                <span className="text-sm font-medium text-foreground">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
                               </div>
                             </div>
                           );
                         })}
                         
                         {Object.keys(reportData.cash.refreshments).length === 0 && (
-                          <div className="text-sm text-gray-500 text-center py-2">No refreshment data available</div>
+                          <div className="text-sm text-muted-foreground text-center py-2">No refreshment data available</div>
                         )}
                       </div>
                     </div>
@@ -333,19 +333,19 @@ export function DayReportDialog({
                 
                 {/* Card column */}
                 <div>
-                  <div className="p-3 flex items-center justify-between bg-green-50 border-b">
+                  <div className="p-3 flex items-center justify-between bg-green-50 dark:bg-green-950/30 border-b border-border">
                     <div className="flex items-center gap-2">
-                      <CreditCard className="h-5 w-5 text-green-700" />
-                      <h3 className="font-semibold text-green-900">Card Payments</h3>
+                      <CreditCard className="h-5 w-5 text-green-700 dark:text-green-500" />
+                      <h3 className="font-semibold text-green-900 dark:text-green-300">Card Payments</h3>
                     </div>
-                    <div className="text-sm font-medium text-green-900">{reportData.card.totalSessions} Sessions</div>
+                    <div className="text-sm font-medium text-green-900 dark:text-green-300">{reportData.card.totalSessions} Sessions</div>
                   </div>
                   
                   <div className="p-4">
                     {/* Rate breakdown */}
                     <div className="mb-5">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                        <Clock className="h-4 w-4 text-gray-400" />
+                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
                         Rate Breakdown
                       </h4>
                       
@@ -355,48 +355,48 @@ export function DayReportDialog({
                           let label;
                           
                           if (rateType === 'day') {
-                            icon = <Clock className="h-4 w-4 text-gray-500" />;
+                            icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = "Day Rate (7-17)";
                           } else if (rateType === 'evening') {
-                            icon = <Clock className="h-4 w-4 text-gray-500" />;
+                            icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = "Evening Rate (17-23)";
                           } else if (rateType === 'weekend') {
-                            icon = <Users className="h-4 w-4 text-gray-500" />;
+                            icon = <Users className="h-4 w-4 text-muted-foreground" />;
                             label = "Weekend Rate";
                           } else if (rateType === 'student') {
-                            icon = <Award className="h-4 w-4 text-gray-500" />;
+                            icon = <Award className="h-4 w-4 text-muted-foreground" />;
                             label = "Student Rate";
                           } else {
-                            icon = <Clock className="h-4 w-4 text-gray-500" />;
+                            icon = <Clock className="h-4 w-4 text-muted-foreground" />;
                             label = rateType;
                           }
                           
                           if (data.count === 0) return null;
                           
                           return (
-                            <div key={rateType} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                            <div key={rateType} className="flex justify-between items-center p-2 bg-muted/50 dark:bg-muted/30 rounded-md">
                               <div className="flex items-center gap-2">
                                 {icon}
-                                <span className="text-sm">{label}</span>
+                                <span className="text-sm text-foreground">{label}</span>
                               </div>
                               <div className="flex gap-4">
-                                <span className="text-sm text-gray-500">{data.count}x</span>
-                                <span className="text-sm font-medium">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
+                                <span className="text-sm text-muted-foreground">{data.count}x</span>
+                                <span className="text-sm font-medium text-foreground">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
                               </div>
                             </div>
                           );
                         })}
                         
                         {Object.values(reportData.card.rateBreakdown).every(d => d.count === 0) && (
-                          <div className="text-sm text-gray-500 text-center py-2">No rate data available</div>
+                          <div className="text-sm text-muted-foreground text-center py-2">No rate data available</div>
                         )}
                       </div>
                     </div>
                     
                     {/* Equipment */}
                     <div className="mb-5">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                        <ShoppingCart className="h-4 w-4 text-gray-400" />
+                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                         Equipment
                       </h4>
                       
@@ -406,26 +406,26 @@ export function DayReportDialog({
                           if (data.count === 0) return null;
                           
                           return (
-                            <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                              <span className="text-sm">{item?.name || key}</span>
+                            <div key={key} className="flex justify-between items-center p-2 bg-muted/50 dark:bg-muted/30 rounded-md">
+                              <span className="text-sm text-foreground">{item?.name || key}</span>
                               <div className="flex gap-4">
-                                <span className="text-sm text-gray-500">{data.count}x</span>
-                                <span className="text-sm font-medium">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
+                                <span className="text-sm text-muted-foreground">{data.count}x</span>
+                                <span className="text-sm font-medium text-foreground">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
                               </div>
                             </div>
                           );
                         })}
                         
                         {Object.keys(reportData.card.equipment).length === 0 && (
-                          <div className="text-sm text-gray-500 text-center py-2">No equipment data available</div>
+                          <div className="text-sm text-muted-foreground text-center py-2">No equipment data available</div>
                         )}
                       </div>
                     </div>
                     
                     {/* Refreshments */}
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                        <Coffee className="h-4 w-4 text-gray-400" />
+                      <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                        <Coffee className="h-4 w-4 text-muted-foreground" />
                         Refreshments
                       </h4>
                       
@@ -435,18 +435,18 @@ export function DayReportDialog({
                           if (data.count === 0) return null;
                           
                           return (
-                            <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                              <span className="text-sm">{item?.name || key}</span>
+                            <div key={key} className="flex justify-between items-center p-2 bg-muted/50 dark:bg-muted/30 rounded-md">
+                              <span className="text-sm text-foreground">{item?.name || key}</span>
                               <div className="flex gap-4">
-                                <span className="text-sm text-gray-500">{data.count}x</span>
-                                <span className="text-sm font-medium">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
+                                <span className="text-sm text-muted-foreground">{data.count}x</span>
+                                <span className="text-sm font-medium text-foreground">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
                               </div>
                             </div>
                           );
                         })}
                         
                         {Object.keys(reportData.card.refreshments).length === 0 && (
-                          <div className="text-sm text-gray-500 text-center py-2">No refreshment data available</div>
+                          <div className="text-sm text-muted-foreground text-center py-2">No refreshment data available</div>
                         )}
                       </div>
                     </div>
@@ -457,20 +457,13 @@ export function DayReportDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex justify-between items-center gap-2">
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             Generated on {format(new Date(), 'MMM d, yyyy HH:mm')}
           </div>
-          <div className="space-x-2">
+          <div>
             <AlertDialogAction
               onClick={onClose}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
-            >
-              <ArrowDownToLine className="h-4 w-4" />
-              Export Report
-            </AlertDialogAction>
-            <AlertDialogAction
-              onClick={onClose}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-800"
+              className="bg-muted hover:bg-muted/80 text-foreground"
             >
               Close
             </AlertDialogAction>

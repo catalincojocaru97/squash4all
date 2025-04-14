@@ -43,7 +43,7 @@ export function SessionList({
 }: SessionListProps) {
   if (sessions.length === 0) {
     return (
-      <div className="text-center py-4 text-gray-500">
+      <div className="text-center py-4 text-muted-foreground">
         {variant === 'default' ? 'No upcoming sessions' : 'No finished sessions'}
       </div>
     )
@@ -55,7 +55,7 @@ export function SessionList({
   return (
     <div className="space-y-2">
       {sortedSessions.map(session => (
-        <div key={session.id} className="border rounded-md overflow-hidden bg-white shadow-sm hover:shadow transition-shadow duration-200 text-sm">
+        <div key={session.id} className="border border-border rounded-md overflow-hidden bg-card shadow-sm hover:shadow transition-shadow duration-200 text-sm">
           {/* Main content area */}
           <div className="p-2">
             {/* Top row with all key info */}
@@ -63,17 +63,17 @@ export function SessionList({
               {/* Left side: Name + time */}
               <div className="flex-1 min-w-0 mr-3">
                 <div className="flex items-center gap-1">
-                  <div className="font-medium text-gray-900 truncate">{session.playerName}</div>
+                  <div className="font-medium text-foreground truncate">{session.playerName}</div>
                   {session.isStudent && (
-                    <span className="px-1 py-0.5 bg-indigo-100 text-indigo-800 text-xs font-medium rounded">
+                    <span className="px-1 py-0.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-medium rounded">
                       S
                     </span>
                   )}
                 </div>
                 
                 {/* Middle row: Time information */}
-                <div className="flex items-center text-xs text-gray-600 mb-2">
-                  <Clock className="h-3 w-3 text-blue-500 mr-1" />
+                <div className="flex items-center text-xs text-muted-foreground mb-2">
+                  <Clock className="h-3 w-3 text-blue-500 dark:text-blue-400 mr-1" />
                   {variant === 'default' ? (
                     <span className="truncate">
                       {session.scheduledTime} ({session.scheduledDuration}h)
@@ -89,7 +89,7 @@ export function SessionList({
               
               {/* Right side: Cost + Actions */}
               <div className="flex items-center gap-1.5">
-                <div className="font-medium text-gray-900 mr-1">
+                <div className="font-medium text-foreground mr-1">
                   {session.cost.toFixed(2)} {CURRENCY_SYMBOL}
                 </div>
                 
@@ -110,7 +110,7 @@ export function SessionList({
                       onClick={() => onStart?.(session.id)}
                       disabled={isSessionActive}
                       title={isSessionActive ? "Cannot start: Another session is active" : "Start session"}
-                      className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700"
+                      className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
                     >
                       <Play className="h-3 w-3" />
                     </Button>
@@ -119,7 +119,7 @@ export function SessionList({
                       variant="ghost" 
                       onClick={() => onCancel?.(session.id)}
                       title="Cancel session"
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
                     >
                       <Trash className="h-3 w-3" />
                     </Button>
@@ -141,7 +141,7 @@ export function SessionList({
             
             {/* Additional items (optional, only shown if present) */}
             {session.items.length > 0 && (
-              <div className="text-xs text-gray-500 mt-1 truncate">
+              <div className="text-xs text-muted-foreground mt-1 truncate">
                 <span className="font-medium">Items:</span>{' '}
                 {session.items.map((item, index) => (
                   <span key={item.itemId}>
@@ -154,15 +154,15 @@ export function SessionList({
             
             {/* Payment method for finished sessions */}
             {variant === 'history' && session.paymentStatus === 'paid' && session.paymentMethod && (
-              <div className="flex items-center text-xs text-gray-600 mb-2">
+              <div className="flex items-center text-xs text-muted-foreground mb-2">
                 {session.paymentMethod === 'cash' ? (
                   <>
-                    <Banknote className="h-3 w-3 text-blue-500 mr-1" />
+                    <Banknote className="h-3 w-3 text-blue-500 dark:text-blue-400 mr-1" />
                     <span className="truncate">Paid with cash</span>
                   </>
                 ) : (
                   <>
-                    <CreditCard className="h-3 w-3 text-blue-500 mr-1" />
+                    <CreditCard className="h-3 w-3 text-blue-500 dark:text-blue-400 mr-1" />
                     <span className="truncate">Paid with card</span>
                   </>
                 )}

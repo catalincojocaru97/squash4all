@@ -10,6 +10,7 @@ import { Activity, TrendingUp, Calendar, FileText, History, Trash2 } from "lucid
 import { Button } from "@/components/ui/button"
 import { DayReportDialog } from "@/components/DayReportDialog"
 import { ResetHistoryDialog } from "@/components/ResetHistoryDialog"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { isBefore, startOfDay, subDays, subWeeks, subMonths } from "date-fns"
 
 export default function Home() {
@@ -114,19 +115,19 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto py-2 px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="bg-blue-600 text-white p-1.5 rounded-md">
+              <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
                 <Activity className="h-5 w-5" />
               </div>
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text dark:from-blue-400 dark:to-indigo-400">
                   Squash4All
                 </h1>
-                <p className="text-gray-500 text-xs">Facility Manager</p>
+                <p className="text-muted-foreground text-xs">Facility Manager</p>
               </div>
             </div>
             <div className="flex gap-3 items-center">
@@ -143,15 +144,17 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="sm"
-                className="hidden md:flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                className="hidden md:flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950 dark:border-red-900"
                 onClick={() => setIsResetOpen(true)}
               >
                 <History className="h-3.5 w-3.5" />
                 Reset History
               </Button>
 
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full text-xs text-gray-600 font-medium">
-                <Calendar className="h-3.5 w-3.5 text-gray-500" />
+              <ThemeToggle />
+
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted rounded-full text-xs text-muted-foreground font-medium">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                 {new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
               </div>
             </div>
@@ -204,9 +207,9 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="bg-white border-t border-gray-200 py-3">
+      <footer className="bg-card border-t border-border py-3">
         <div className="container mx-auto px-4">
-          <div className="text-sm text-gray-500 text-center">
+          <div className="text-sm text-muted-foreground text-center">
             © {new Date().getFullYear()} Squash4All Facility Management System
           </div>
         </div>

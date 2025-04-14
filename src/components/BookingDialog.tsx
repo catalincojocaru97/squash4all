@@ -199,7 +199,7 @@ export function BookingDialog({
                 className="w-20"
                 required
               />
-              <span className="text-sm text-gray-500">hour(s)</span>
+              <span className="text-sm text-muted-foreground">hour(s)</span>
               <div className="flex">
                 <Button
                   type="button"
@@ -247,17 +247,17 @@ export function BookingDialog({
           
           {/* --- Rate Options Section (Squash Only) --- */}
           {courtType === "squash" && (
-             <div className="rounded-md border border-gray-200 overflow-hidden">
+             <div className="rounded-md border border-border overflow-hidden">
                 <button
                     onClick={(e: React.MouseEvent) => setRateOptionsExpanded(prev => !prev)}
-                    className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+                    className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
                 >
                     <div className="flex items-center gap-2">
                         <CircleDollarSign className="h-4 w-4 text-purple-500" />
                         <span>Rate Options</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <div className="text-xs text-gray-500 mr-1">{
+                        <div className="text-xs text-muted-foreground mr-1">{
                             isStudent ? "Student Rate" :
                             selectedTimeInterval === "day" ? "Day Rate" :
                             selectedTimeInterval === "evening" ? "Evening Rate" : "Weekend Rate"
@@ -268,32 +268,34 @@ export function BookingDialog({
                 <AnimatePresence>
                     {rateOptionsExpanded && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                            <div className="p-2 bg-gray-50/50" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                            <div className="p-2 bg-muted/50 dark:bg-muted/20" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                 <Tabs value={selectedTimeInterval || "day"} onValueChange={handleTimeIntervalChange} className="w-full">
-                                    <TabsList className="grid w-full grid-cols-3 mb-2" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    <div className="bg-card rounded-md p-1.5 flex border border-border mb-2">
+                                      <TabsList className="bg-transparent p-0 w-full flex justify-between" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         {TIME_INTERVAL_OPTIONS.map((option: TimeIntervalOption) => (
                                             <TabsTrigger 
                                                 key={option.value} 
                                                 value={option.value} 
-                                                className="text-xs" 
+                                                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm rounded-md data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:bg-muted/80 data-[state=active]:text-foreground"
                                                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
                                             >
                                                 {option.label}
                                             </TabsTrigger>
                                         ))}
-                                    </TabsList>
+                                      </TabsList>
+                                    </div>
                                     {TIME_INTERVAL_OPTIONS.map((option: TimeIntervalOption) => (
                                         <TabsContent key={option.value} value={option.value} className="mt-1">
-                                            <div className="rounded-md bg-white p-2.5 text-sm">
+                                            <div className="rounded-md bg-card p-2.5 text-sm">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-1.5">
                                                         {option.icon}
                                                         <div className="font-medium">{option.price} {CURRENCY_SYMBOL}</div>
                                                     </div>
-                                                    <div className="text-xs text-gray-500">{option.description}</div>
+                                                    <div className="text-xs text-muted-foreground">{option.description}</div>
                                                 </div>
                                                 {option.value === 'day' && (
-                                                    <div className="mt-2.5 pt-2 border-t border-gray-100">
+                                                    <div className="mt-2.5 pt-2 border-t border-border">
                                                         <label className="flex items-center gap-2 cursor-pointer">
                                                             <input 
                                                                 type="checkbox" 
@@ -320,10 +322,10 @@ export function BookingDialog({
           )}
 
           {/* --- Equipment Section --- */}
-          <div className="rounded-md border border-gray-200 overflow-hidden">
+          <div className="rounded-md border border-border overflow-hidden">
                 <button
                     onClick={(e: React.MouseEvent) => setEquipmentExpanded(prev => !prev)}
-                    className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+                    className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
                 >
                      <div className="flex items-center gap-2">
                         <ShoppingCart className="h-4 w-4 text-blue-500" />
@@ -331,7 +333,7 @@ export function BookingDialog({
                     </div>
                      <div className="flex items-center gap-1.5">
                          {selectedItems.filter(item => ADDITIONAL_ITEMS.find(i => i.id === item.itemId)?.category === 'equipment').length > 0 && (
-                             <div className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                             <div className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-1.5 py-0.5 rounded-full">
                                  {selectedItems.filter(item => ADDITIONAL_ITEMS.find(i => i.id === item.itemId)?.category === 'equipment').reduce((sum, item) => sum + item.quantity, 0)}
                              </div>
                          )}
@@ -341,18 +343,22 @@ export function BookingDialog({
                  <AnimatePresence>
                      {equipmentExpanded && (
                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                            <div className="p-3 bg-gray-50/50" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                            <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                 <div className="space-y-1.5">
                                     {ADDITIONAL_ITEMS.filter(item => item.category === 'equipment').map((item) => (
-                                        <div key={item.id} className={cn("flex items-center justify-between py-1.5 px-2 rounded-md", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "bg-blue-50" : "bg-white")}>
+                                        <div key={item.id} className={cn("flex items-center justify-between py-1.5 px-2 rounded-md", 
+                                          (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 
+                                            ? "bg-blue-50 dark:bg-blue-900/30" 
+                                            : "bg-card dark:bg-card"
+                                        )}>
                                             <div>
                                                 <p className="text-sm font-medium">{item.name}</p>
-                                                <p className="text-xs text-gray-500">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
+                                                <p className="text-xs text-muted-foreground">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 hover:bg-red-100" : "text-gray-300")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
-                                                <span className={cn("w-5 text-center text-sm font-medium transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-blue-600" : "text-gray-400")}> {selectedItems.find(i => i.itemId === item.id)?.quantity || 0} </span>
-                                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 hover:bg-green-100 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
+                                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-gray-300 dark:text-gray-600")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
+                                                <span className={cn("w-5 text-center text-sm font-medium transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500")}> {selectedItems.find(i => i.itemId === item.id)?.quantity || 0} </span>
+                                                <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
                                             </div>
                                         </div>
                                     ))}
@@ -364,10 +370,10 @@ export function BookingDialog({
              </div>
 
           {/* --- Refreshments Section --- */}
-          <div className="rounded-md border border-gray-200 overflow-hidden">
+          <div className="rounded-md border border-border overflow-hidden">
                 <button
                      onClick={(e: React.MouseEvent) => setRefreshmentsExpanded(prev => !prev)}
-                     className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+                     className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
                  >
                      <div className="flex items-center gap-2">
                          <Coffee className="h-4 w-4 text-green-500" />
@@ -375,7 +381,7 @@ export function BookingDialog({
                      </div>
                     <div className="flex items-center gap-1.5">
                          {selectedItems.filter(item => ADDITIONAL_ITEMS.find(i => i.id === item.itemId)?.category === 'refreshment').length > 0 && (
-                             <div className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                             <div className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-1.5 py-0.5 rounded-full">
                                  {selectedItems.filter(item => ADDITIONAL_ITEMS.find(i => i.id === item.itemId)?.category === 'refreshment').reduce((sum, item) => sum + item.quantity, 0)}
                              </div>
                          )}
@@ -385,37 +391,41 @@ export function BookingDialog({
                  <AnimatePresence>
                      {refreshmentsExpanded && (
                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                             <div className="p-3 bg-gray-50/50" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                             <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                  <div className="space-y-1.5">
                                      {ADDITIONAL_ITEMS.filter(item => item.category === 'refreshment').map((item) => (
-                                         <div key={item.id} className={cn("flex items-center justify-between py-1.5 px-2 rounded-md", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "bg-green-50" : "bg-white")}>
+                                         <div key={item.id} className={cn("flex items-center justify-between py-1.5 px-2 rounded-md", 
+                                          (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 
+                                            ? "bg-green-50 dark:bg-green-900/30" 
+                                            : "bg-card dark:bg-card"
+                                         )}>
                                             <div>
                                                 <p className="text-sm font-medium">{item.name}</p>
-                                                <p className="text-xs text-gray-500">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
+                                                <p className="text-xs text-muted-foreground">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
                                              </div>
                                              <div className="flex items-center gap-1">
-                                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 hover:bg-red-100" : "text-gray-300")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
-                                                 <span className={cn("w-5 text-center text-sm font-medium transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-green-600" : "text-gray-400")}> {selectedItems.find(i => i.itemId === item.id)?.quantity || 0} </span>
-                                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 hover:bg-green-100 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
+                                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; if (currentQty > 0) { handleItemChange(item.id, currentQty - 1); } }} className={cn("p-1 rounded-full transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-gray-300 dark:text-gray-600")} disabled={(selectedItems.find(i => i.itemId === item.id)?.quantity || 0) === 0}> <Minus className="w-3.5 h-3.5" /> </button>
+                                                 <span className={cn("w-5 text-center text-sm font-medium transition-colors", (selectedItems.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-500")}> {selectedItems.find(i => i.itemId === item.id)?.quantity || 0} </span>
+                                                 <button onClick={(e: React.MouseEvent) => { e.stopPropagation(); const currentQty = selectedItems.find(i => i.itemId === item.id)?.quantity || 0; handleItemChange(item.id, currentQty + 1); }} className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"> <Plus className="w-3.5 h-3.5" /> </button>
                                              </div>
                                          </div>
                                      ))}
                                  </div>
                              </div>
                          </motion.div>
-                    )}
+                     )}
                  </AnimatePresence>
              </div>
 
           {/* Estimated Cost Display */}
-          <div className="pt-4 mt-4 border-t border-gray-200">
+          <div className="pt-4 mt-4 border-t border-border">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Estimated Cost:</span>
-              <span className="text-lg font-semibold text-green-600">
+              <span className="text-sm font-medium text-foreground">Estimated Cost:</span>
+              <span className="text-lg font-semibold text-green-600 dark:text-green-400">
                 {displayCost.toFixed(2)} {CURRENCY_SYMBOL}
               </span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Based on {scheduledDuration} hour(s), selected rate, and items.
             </p>
           </div>
@@ -429,7 +439,7 @@ export function BookingDialog({
           <Button 
             onClick={handleConfirm}
             disabled={!playerName || scheduledDuration < 1} // Basic validation
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
           >
             {existingSession ? "Update Booking" : "Confirm Booking"}
           </Button>

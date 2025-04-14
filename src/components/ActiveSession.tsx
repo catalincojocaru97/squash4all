@@ -145,20 +145,20 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
         <div>
           <div className="font-medium">{session.playerName}</div>
           {session.contactInfo && (
-            <div className="text-sm text-gray-500">{session.contactInfo}</div>
+            <div className="text-sm text-muted-foreground">{session.contactInfo}</div>
           )}
         </div>
         
         {/* Timer display */}
         <div className="text-right">
-          <div className="text-sm text-gray-500">Elapsed Time</div>
+          <div className="text-sm text-muted-foreground">Elapsed Time</div>
           <div className="text-lg font-semibold">{formatTime(time)}</div>
         </div>
       </div>
       
-      <div className="bg-gray-50 p-3 rounded-lg space-y-2">
+      <div className="bg-muted/50 dark:bg-muted/20 p-3 rounded-lg space-y-2">
         {/* Rate info */}
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           {session.type === "squash" ? (
             session.isStudent ? 
               "Student Rate" : 
@@ -174,29 +174,29 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
         
         {/* Booking info */}
         <div className="text-sm">
-          <span className="text-gray-600">Booked for:</span> <span className="font-medium">{session.scheduledDuration} {session.scheduledDuration === 1 ? 'hour' : 'hours'}</span>
+          <span className="text-muted-foreground">Booked for:</span> <span className="font-medium">{session.scheduledDuration} {session.scheduledDuration === 1 ? 'hour' : 'hours'}</span>
         </div>
       </div>
       
       {/* Current cost */}
       <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-600">Total Cost</div>
+        <div className="text-sm text-muted-foreground">Total Cost</div>
         <div className="text-xl font-bold">{currentCost.toFixed(2)} {CURRENCY_SYMBOL}</div>
       </div>
       
       {/* Rate Options - Only for Squash Courts */}
       {session.type === "squash" && (
-        <div className="rounded-md border border-gray-200 overflow-hidden">
+        <div className="rounded-md border border-border overflow-hidden">
           <button 
             onClick={() => setRateOptionsExpanded(prev => !prev)}
-            className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+            className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
           >
             <div className="flex items-center gap-2">
               <CircleDollarSign className="h-4 w-4 text-purple-500" />
               <span>Rate Options</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="text-xs text-gray-500 mr-1">{
+              <div className="text-xs text-muted-foreground mr-1">{
                 session.isStudent ? "Student Rate" : 
                 session.selectedTimeInterval === "day" ? "Day Rate" :
                 session.selectedTimeInterval === "evening" ? "Evening Rate" : "Weekend Rate"
@@ -214,34 +214,36 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className="p-2 bg-gray-50/50" onClick={(e) => e.stopPropagation()}>
+                <div className="p-2 bg-muted/50 dark:bg-muted/20" onClick={(e) => e.stopPropagation()}>
                   <Tabs value={session.selectedTimeInterval || "day"} onValueChange={handleTimeIntervalChange} className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 mb-2" onClick={(e) => e.stopPropagation()}>
-                      {TIME_INTERVAL_OPTIONS.map((option) => (
-                        <TabsTrigger 
-                          key={option.value} 
-                          value={option.value} 
-                          className="text-xs"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {option.label}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
+                    <div className="bg-card rounded-md p-1.5 flex border border-border mb-2">
+                      <TabsList className="bg-transparent p-0 w-full flex justify-between">
+                        {TIME_INTERVAL_OPTIONS.map((option) => (
+                          <TabsTrigger 
+                            key={option.value} 
+                            value={option.value} 
+                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm rounded-md data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:bg-muted/80 data-[state=active]:text-foreground"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {option.label}
+                          </TabsTrigger>
+                        ))}
+                      </TabsList>
+                    </div>
                     
                     {TIME_INTERVAL_OPTIONS.map((option) => (
                       <TabsContent key={option.value} value={option.value} className="mt-1">
-                        <div className="rounded-md bg-white p-2.5 text-sm">
+                        <div className="rounded-md bg-card p-2.5 text-sm">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
                               {option.icon}
                               <div className="font-medium">{option.price} {CURRENCY_SYMBOL}</div>
                             </div>
-                            <div className="text-xs text-gray-500">{option.description}</div>
+                            <div className="text-xs text-muted-foreground">{option.description}</div>
                           </div>
                           
                           {option.value === 'day' && (
-                            <div className="mt-2.5 pt-2 border-t border-gray-100">
+                            <div className="mt-2.5 pt-2 border-t border-border">
                               <label className="flex items-center gap-2 cursor-pointer">
                                 <input
                                   type="checkbox"
@@ -268,10 +270,10 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
       )}
       
       {/* Equipment Section */}
-      <div className="rounded-md border border-gray-200 overflow-hidden">
+      <div className="rounded-md border border-border overflow-hidden">
         <button 
           onClick={() => setAdditionalItemsExpanded(prev => !prev)}
-          className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+          className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
         >
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-4 w-4 text-blue-500" />
@@ -282,7 +284,7 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
               const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
               return itemDef?.category === 'equipment';
             }).length > 0 && (
-              <div className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+              <div className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-1.5 py-0.5 rounded-full">
                 {items.filter(item => {
                   const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
                   return itemDef?.category === 'equipment';
@@ -302,16 +304,18 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="p-3 bg-gray-50/50" onClick={(e) => e.stopPropagation()}>
+              <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(e) => e.stopPropagation()}>
                 <div className="space-y-1.5">
                   {ADDITIONAL_ITEMS.filter(item => item.category === 'equipment').map((item) => (
                     <div key={item.id} className={cn(
                       "flex items-center justify-between py-1.5 px-2 rounded-md",
-                      (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "bg-blue-50" : "bg-white"
+                      (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 
+                        ? "bg-blue-50 dark:bg-blue-900/30" 
+                        : "bg-card dark:bg-card"
                     )}>
                       <div>
                         <p className="text-sm font-medium">{item.name}</p>
-                        <p className="text-xs text-gray-500">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
+                        <p className="text-xs text-muted-foreground">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
                       </div>
                       <div className="flex items-center gap-1">
                         <button
@@ -325,8 +329,8 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                           className={cn(
                             "p-1 rounded-full transition-colors",
                             (items.find(i => i.itemId === item.id)?.quantity || 0) > 0
-                              ? "text-red-500 hover:bg-red-100"
-                              : "text-gray-300"
+                              ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+                              : "text-gray-300 dark:text-gray-600"
                           )}
                           disabled={(items.find(i => i.itemId === item.id)?.quantity || 0) === 0}
                         >
@@ -334,7 +338,9 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                         </button>
                         <span className={cn(
                           "w-5 text-center text-sm font-medium transition-colors",
-                          (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-blue-600" : "text-gray-400"
+                          (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 
+                            ? "text-blue-600 dark:text-blue-400" 
+                            : "text-gray-400 dark:text-gray-500"
                         )}>
                           {items.find(i => i.itemId === item.id)?.quantity || 0}
                         </span>
@@ -344,7 +350,7 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                             const currentQty = items.find(i => i.itemId === item.id)?.quantity || 0;
                             handleItemChange(item.id, currentQty + 1);
                           }}
-                          className="p-1 rounded-full text-green-500 hover:bg-green-100 transition-colors"
+                          className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -359,10 +365,10 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
       </div>
       
       {/* Refreshments Section */}
-      <div className="rounded-md border border-gray-200 overflow-hidden">
+      <div className="rounded-md border border-border overflow-hidden">
         <button 
           onClick={() => setRefreshmentItemsExpanded(prev => !prev)}
-          className="w-full flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 text-sm font-medium"
+          className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
         >
           <div className="flex items-center gap-2">
             <Coffee className="h-4 w-4 text-green-500" />
@@ -373,7 +379,7 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
               const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
               return itemDef?.category === 'refreshment';
             }).length > 0 && (
-              <div className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+              <div className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-1.5 py-0.5 rounded-full">
                 {items.filter(item => {
                   const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
                   return itemDef?.category === 'refreshment';
@@ -393,16 +399,18 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="p-3 bg-gray-50/50" onClick={(e) => e.stopPropagation()}>
+              <div className="p-3 bg-muted/50 dark:bg-muted/20" onClick={(e) => e.stopPropagation()}>
                 <div className="space-y-1.5">
                   {ADDITIONAL_ITEMS.filter(item => item.category === 'refreshment').map((item) => (
                     <div key={item.id} className={cn(
                       "flex items-center justify-between py-1.5 px-2 rounded-md",
-                      (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "bg-green-50" : "bg-white"
+                      (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 
+                        ? "bg-green-50 dark:bg-green-900/30" 
+                        : "bg-card dark:bg-card"
                     )}>
                       <div>
                         <p className="text-sm font-medium">{item.name}</p>
-                        <p className="text-xs text-gray-500">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
+                        <p className="text-xs text-muted-foreground">{item.price.toFixed(2)} {CURRENCY_SYMBOL}</p>
                       </div>
                       <div className="flex items-center gap-1">
                         <button
@@ -416,8 +424,8 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                           className={cn(
                             "p-1 rounded-full transition-colors",
                             (items.find(i => i.itemId === item.id)?.quantity || 0) > 0
-                              ? "text-red-500 hover:bg-red-100"
-                              : "text-gray-300"
+                              ? "text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+                              : "text-gray-300 dark:text-gray-600"
                           )}
                           disabled={(items.find(i => i.itemId === item.id)?.quantity || 0) === 0}
                         >
@@ -425,7 +433,9 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                         </button>
                         <span className={cn(
                           "w-5 text-center text-sm font-medium transition-colors",
-                          (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 ? "text-green-600" : "text-gray-400"
+                          (items.find(i => i.itemId === item.id)?.quantity || 0) > 0 
+                            ? "text-green-600 dark:text-green-400" 
+                            : "text-gray-400 dark:text-gray-500"
                         )}>
                           {items.find(i => i.itemId === item.id)?.quantity || 0}
                         </span>
@@ -435,7 +445,7 @@ export function ActiveSession({ session, onEnd, onAddItems, onUpdateSessionDetai
                             const currentQty = items.find(i => i.itemId === item.id)?.quantity || 0;
                             handleItemChange(item.id, currentQty + 1);
                           }}
-                          className="p-1 rounded-full text-green-500 hover:bg-green-100 transition-colors"
+                          className="p-1 rounded-full text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>

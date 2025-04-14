@@ -186,15 +186,17 @@ export function TabCourtCard({
       <Card className={cn(
         "overflow-hidden transition-all duration-300 h-[645px] flex flex-col",
         activeSession
-          ? "shadow-lg border-orange-400 bg-orange-50/20"
-          : "shadow-md hover:shadow-lg border-green-400 bg-green-50/20"
+          ? "shadow-lg border-orange-400 dark:border-orange-600 bg-orange-50/20 dark:bg-orange-950/40"
+          : "shadow-md hover:shadow-lg border-green-400 dark:border-green-600 bg-green-50/20 dark:bg-green-950/40"
       )}>
         <CardHeader className="pb-1 pt-2 px-4 flex-shrink-0">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <div className={cn(
                 "flex items-center justify-center w-8 h-8 rounded-full",
-                activeSession ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"
+                activeSession 
+                  ? "bg-orange-100 text-orange-600 dark:bg-orange-900/60 dark:text-orange-400" 
+                  : "bg-green-100 text-green-600 dark:bg-green-900/60 dark:text-green-400"
               )}>
                 {courtNumber || (type === "squash" ? "S" : "T")}
               </div>
@@ -205,8 +207,8 @@ export function TabCourtCard({
             <Badge variant={activeSession ? "default" : "outline"} className={cn(
               "transition-all",
               activeSession 
-                ? "bg-orange-100 hover:bg-orange-100 text-orange-700 border-orange-200"
-                : "bg-green-100 text-green-700 border-green-200"
+                ? "bg-orange-100 hover:bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/60 dark:text-orange-300 dark:border-orange-800"
+                : "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/60 dark:text-green-300 dark:border-green-800"
             )}>
               {activeSession ? "In Use" : "Available"}
             </Badge>
@@ -215,25 +217,29 @@ export function TabCourtCard({
         
         <CardContent className="flex-grow overflow-y-auto custom-scrollbar pb-4">
           <Tabs defaultValue="active" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-4 sticky top-0 z-10 bg-white dark:bg-gray-900 shadow-sm w-full">
-              <TabsTrigger value="upcoming" className="flex items-center justify-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>Upcoming ({upcomingSessions.length})</span>
-              </TabsTrigger>
-              <TabsTrigger value="active" className="flex items-center justify-center">
-                <Clock className="h-4 w-4 mr-1" />
-                <span>Active {activeSession ? "(1)" : "(0)"}</span>
-              </TabsTrigger>
-              <TabsTrigger value="finished" className="flex items-center justify-center">
-                <CircleDollarSign className="h-4 w-4 mr-1" />
-                <span>Finished ({finishedSessions.length})</span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="mb-4">
+              <div className="bg-card rounded-md p-1.5 flex border border-border">
+                <TabsList className="bg-transparent p-0 w-full flex justify-between">
+                  <TabsTrigger value="upcoming" className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm rounded-md data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:bg-muted/80 data-[state=active]:text-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>Upcoming ({upcomingSessions.length})</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="active" className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm rounded-md data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:bg-muted/80 data-[state=active]:text-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>Active {activeSession ? "(1)" : "(0)"}</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="finished" className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm rounded-md data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:bg-muted/80 data-[state=active]:text-foreground">
+                    <CircleDollarSign className="h-4 w-4" />
+                    <span>Finished ({finishedSessions.length})</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+            </div>
             
             <TabsContent value="upcoming" className="space-y-4">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm font-medium text-gray-700">Upcoming Bookings</h3>
-                <Button onClick={handleCreateBooking} size="sm" className="flex items-center gap-1.5">
+                <h3 className="text-sm font-medium text-foreground">Upcoming Bookings</h3>
+                <Button onClick={handleCreateBooking} size="sm" className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground">
                   <Plus className="h-3.5 w-3.5" />
                   Book Court
                 </Button>
