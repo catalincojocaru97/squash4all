@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, DISCOUNT_CARD_AMOUNT, Session, TIME_INTERVAL_OPTIONS, TimeIntervalOption } from "@/types" // Import necessary types/constants and TimeIntervalOption
 import { cn } from "@/lib/utils"
-import { Plus, Minus, CircleDollarSign, ShoppingCart, Coffee, ChevronDown, ChevronUp, Award } from "lucide-react" // Import icons
+import { Plus, Minus, CircleDollarSign, ShoppingCart, CupSoda, ChevronDown, ChevronUp, Award } from "lucide-react" // Import icons
 import { motion, AnimatePresence } from "framer-motion" // Import animation components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs" // Import Tabs
 
@@ -528,7 +528,7 @@ export function BookingDialog({
                      className="w-full flex items-center justify-between p-2.5 bg-card hover:bg-muted/50 text-sm font-medium"
                  >
                      <div className="flex items-center gap-2">
-                         <Coffee className="h-4 w-4 text-green-500" />
+                         <CupSoda className="h-4 w-4 text-green-500" />
                          <span>Refreshments</span>
                      </div>
                     <div className="flex items-center gap-1.5">

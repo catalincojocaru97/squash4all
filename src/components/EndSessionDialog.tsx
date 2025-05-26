@@ -11,7 +11,7 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { Ban, Coffee, ShoppingCart, CheckCircle, CreditCard, Banknote, AlertCircle, Award } from "lucide-react"
+import { Ban, CupSoda, ShoppingCart, CheckCircle, CreditCard, Banknote, AlertCircle, Award } from "lucide-react"
 import { Session, ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, DISCOUNT_CARD_AMOUNT, TIME_INTERVAL_OPTIONS } from "@/types"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
@@ -199,7 +199,7 @@ export function EndSessionDialog({
                           }) && (
                               <div className="space-y-1">
                                 <div className="text-xs font-medium text-muted-foreground flex items-center">
-                                  <Coffee className="h-3 w-3 mr-1 text-muted-foreground" />
+                                  <CupSoda className="h-3 w-3 mr-1 text-muted-foreground" />
                                   Refreshments
                                 </div>
                                 {items.map((item) => {
@@ -407,7 +407,7 @@ export function EndSessionDialog({
                           }) && (
                               <div className="space-y-1">
                                 <div className="text-xs font-medium text-muted-foreground flex items-center">
-                                  <Coffee className="h-3 w-3 mr-1 text-muted-foreground" />
+                                  <CupSoda className="h-3 w-3 mr-1 text-muted-foreground" />
                                   Refreshments
                                 </div>
                                 {items.map((item) => {

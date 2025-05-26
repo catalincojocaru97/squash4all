@@ -3,7 +3,7 @@ import { Session, CURRENCY_SYMBOL, ADDITIONAL_ITEMS, STUDENT_PRICE, DISCOUNT_CAR
 import {
   CircleDollarSign,
   ShoppingCart,
-  Coffee,
+  CupSoda,
   ChevronDown,
   ChevronUp,
   Plus,
@@ -558,7 +558,7 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
             className="w-full flex items-center justify-between p-2 bg-card hover:bg-muted/50 text-sm font-medium"
           >
             <div className="flex items-center gap-2">
-              <Coffee className="h-4 w-4 text-green-500" />
+              <CupSoda className="h-4 w-4 text-green-500" />
               <span>Refreshments</span>
             </div>
             <div className="flex items-center gap-1.5">

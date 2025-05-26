@@ -7,9 +7,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { FileText, Calendar, CreditCard, Banknote, Clock, Award, ShoppingCart, Coffee, Users } from "lucide-react"
-import { CURRENCY_SYMBOL, ADDITIONAL_ITEMS, Session, TIME_INTERVAL_OPTIONS } from "@/types"
+import { FileText, Calendar, CreditCard, Banknote, Clock, Award, ShoppingCart, Users, Download, CupSoda } from "lucide-react"
+import { CURRENCY_SYMBOL, ADDITIONAL_ITEMS, Session, TIME_INTERVAL_OPTIONS, STUDENT_PRICE, BASE_RATES } from "@/types"
 import { format, isSameDay } from "date-fns"
+import { unparse } from "papaparse"
 
 interface DayReportDialogProps {
   isOpen: boolean
@@ -35,6 +36,26 @@ interface PaymentMethodReport {
 interface ReportData {
   cash: PaymentMethodReport;
   card: PaymentMethodReport;
+}
+
+// Helper to get a sortable base price for court rates
+const getRateSortKey = (originalRateLabel: string): number => {
+  if (originalRateLabel.toLowerCase().includes('subscription')) return 10; // Low, but above 0
+  if (originalRateLabel.toLowerCase().includes('student')) return STUDENT_PRICE; // e.g., 30
+  const matchedOption = TIME_INTERVAL_OPTIONS.find(opt => opt.label === originalRateLabel);
+  if (matchedOption) return matchedOption.price; // e.g., 50, 80
+  if (originalRateLabel.toLowerCase().includes('table tennis')) return BASE_RATES.tableTennis;
+  return 0; // Default for others or if no match
+};
+
+// Helper to get a unit price string for court rates
+const getRateUnitPrice = (originalRateLabel: string): string => {
+  if (originalRateLabel.toLowerCase().includes('subscription')) return `0 ${CURRENCY_SYMBOL} (Subscription)`;
+  if (originalRateLabel.toLowerCase().includes('student')) return `${STUDENT_PRICE} ${CURRENCY_SYMBOL}`;
+  const matchedOption = TIME_INTERVAL_OPTIONS.find(opt => opt.label === originalRateLabel);
+  if (matchedOption) return `${matchedOption.price} ${CURRENCY_SYMBOL}`;
+  if (originalRateLabel.toLowerCase().includes('table tennis')) return `${BASE_RATES.tableTennis} ${CURRENCY_SYMBOL}`;
+  return 'N/A';
 }
 
 export function DayReportDialog({
@@ -225,23 +246,220 @@ export function DayReportDialog({
       return <div className="text-sm text-muted-foreground text-center py-2">No {categoryName.toLowerCase()} data available</div>;
     }
     return entries.map(([key, data]) => {
-      const item = ADDITIONAL_ITEMS.find(i => i.id === key);
-      if (data.count === 0) return null;
+      const itemDef = ADDITIONAL_ITEMS.find(i => i.id === key);
+      if (data.count === 0 || !itemDef) return null; 
+
+      const unitPrice = itemDef.price;
+
+      // Determine icon based on category
+      let icon = <ShoppingCart className="h-4 w-4 text-muted-foreground" />;
+      if (categoryName === 'Refreshments') {
+        icon = <CupSoda className="h-4 w-4 text-muted-foreground" />;
+      }
+
       return (
         <div key={key} className="flex justify-between items-center p-2 bg-muted/50 dark:bg-muted/30 rounded-md">
-          <span className="text-sm text-foreground">{item?.name || key}</span>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-2 flex-grow-[2] basis-0">
+            {icon} 
+            <span className="text-sm text-foreground truncate">{itemDef.name}</span>
+          </div>
+          <div className="flex gap-1 items-center justify-end flex-grow-[1] basis-0">
             <span className="text-sm text-muted-foreground">{data.count}x</span>
-            <span className="text-sm font-medium text-foreground">{data.revenue.toFixed(2)} {CURRENCY_SYMBOL}</span>
+            <span className="text-sm font-medium text-foreground min-w-[50px] text-right">{unitPrice.toFixed(2)}</span>
+            <span className="text-sm text-muted-foreground ml-0.5">{CURRENCY_SYMBOL}</span>
+            <span className="text-sm text-muted-foreground mx-1 ml-6">=</span>
+            <span className="text-sm font-medium text-foreground min-w-[60px] text-right">{data.revenue.toFixed(2)}</span>
+            <span className="text-sm text-muted-foreground ml-0.5">{CURRENCY_SYMBOL}</span>
           </div>
         </div>
       );
     });
   };
 
+  const handleExportToCSV = () => {
+    const reportDateStr = format(date, 'yyyy-MM-dd');
+    
+    type AggregatedItem = {
+      category: string;
+      itemName: string;
+      unitPrice: string;
+      cashQty: number;
+      cashRevenue: number;
+      cardQty: number;
+      cardRevenue: number;
+      totalQty: number;
+      totalRevenue: number;
+      sortKey?: number; // For sorting court rates
+      originalRateLabel?: string; // Keep for court rates if needed for display consistency
+    };
+    const aggregatedData: Record<string, AggregatedItem> = {};
+
+    // Helper to initialize or update aggregated item
+    const updateAggregatedItem = (
+      key: string,
+      category: string,
+      itemName: string,
+      unitPrice: string,
+      qty: number,
+      revenue: number,
+      paymentMethod: 'cash' | 'card',
+      sortKey?: number,
+      originalRateLabel?: string
+    ) => {
+      if (!aggregatedData[key]) {
+        aggregatedData[key] = {
+          category,
+          itemName,
+          unitPrice,
+          cashQty: 0, cashRevenue: 0,
+          cardQty: 0, cardRevenue: 0,
+          totalQty: 0, totalRevenue: 0,
+          sortKey: category === 'Court Revenue' ? sortKey : undefined,
+          originalRateLabel: category === 'Court Revenue' ? originalRateLabel : undefined,
+        };
+      }
+      if (paymentMethod === 'cash') {
+        aggregatedData[key].cashQty += qty;
+        aggregatedData[key].cashRevenue += revenue;
+      } else { // card
+        aggregatedData[key].cardQty += qty;
+        aggregatedData[key].cardRevenue += revenue;
+      }
+      aggregatedData[key].totalQty += qty;
+      aggregatedData[key].totalRevenue += revenue;
+    };
+    
+    // Process Cash Data
+    Object.entries(reportData.cash.rateBreakdown).forEach(([_, data]) => {
+      if (data.count > 0) {
+        // Use originalRateLabel for grouping, but getRateDisplayLabel for potential display in CSV if needed (or stick to originalRateLabel)
+        const itemName = data.originalRateLabel; // Group by this
+        const displayLabel = getRateDisplayLabel(data); // More detailed label
+        updateAggregatedItem(`court-${itemName}`, 'Court Revenue', displayLabel, getRateUnitPrice(data.originalRateLabel), data.count, data.revenue, 'cash', getRateSortKey(data.originalRateLabel), data.originalRateLabel);
+      }
+    });
+    Object.entries(reportData.cash.equipment).forEach(([itemId, data]) => {
+      if (data.count > 0) {
+        const itemDef = ADDITIONAL_ITEMS.find(i => i.id === itemId);
+        updateAggregatedItem(`equip-${itemId}`, 'Equipment', itemDef?.name || itemId, `${itemDef?.price.toFixed(2)} ${CURRENCY_SYMBOL}` || 'N/A', data.count, data.revenue, 'cash');
+      }
+    });
+    Object.entries(reportData.cash.refreshments).forEach(([itemId, data]) => {
+      if (data.count > 0) {
+        const itemDef = ADDITIONAL_ITEMS.find(i => i.id === itemId);
+        updateAggregatedItem(`refresh-${itemId}`, 'Refreshments', itemDef?.name || itemId, `${itemDef?.price.toFixed(2)} ${CURRENCY_SYMBOL}` || 'N/A', data.count, data.revenue, 'cash');
+      }
+    });
+
+    // Process Card Data
+    Object.entries(reportData.card.rateBreakdown).forEach(([_, data]) => {
+      if (data.count > 0) {
+        const itemName = data.originalRateLabel;
+        const displayLabel = getRateDisplayLabel(data);
+        updateAggregatedItem(`court-${itemName}`, 'Court Revenue', displayLabel, getRateUnitPrice(data.originalRateLabel), data.count, data.revenue, 'card', getRateSortKey(data.originalRateLabel), data.originalRateLabel);
+      }
+    });
+    Object.entries(reportData.card.equipment).forEach(([itemId, data]) => {
+      if (data.count > 0) {
+        const itemDef = ADDITIONAL_ITEMS.find(i => i.id === itemId);
+        updateAggregatedItem(`equip-${itemId}`, 'Equipment', itemDef?.name || itemId, `${itemDef?.price.toFixed(2)} ${CURRENCY_SYMBOL}` || 'N/A', data.count, data.revenue, 'card');
+      }
+    });
+    Object.entries(reportData.card.refreshments).forEach(([itemId, data]) => {
+      if (data.count > 0) {
+        const itemDef = ADDITIONAL_ITEMS.find(i => i.id === itemId);
+        updateAggregatedItem(`refresh-${itemId}`, 'Refreshments', itemDef?.name || itemId, `${itemDef?.price.toFixed(2)} ${CURRENCY_SYMBOL}` || 'N/A', data.count, data.revenue, 'card');
+      }
+    });
+    
+    let csvRowsToExport = Object.values(aggregatedData);
+
+    // Sort the aggregated data
+    csvRowsToExport.sort((a, b) => {
+      // Sort by Category
+      const categoryOrder = { 'Court Revenue': 1, 'Equipment': 2, 'Refreshments': 3 } as const;
+      const categoryA = a.category as keyof typeof categoryOrder;
+      const categoryB = b.category as keyof typeof categoryOrder;
+
+      if (categoryOrder[categoryA] !== categoryOrder[categoryB]) {
+        return categoryOrder[categoryA] - categoryOrder[categoryB];
+      }
+      // Within Court Revenue, sort by sortKey (descending price), then by item name
+      if (a.category === 'Court Revenue') {
+        const priceA = a.sortKey !== undefined ? a.sortKey : 0;
+        const priceB = b.sortKey !== undefined ? b.sortKey : 0;
+        if (priceB !== priceA) return priceB - priceA; // Higher price first
+      }
+      // For Equipment and Refreshments, or as tie-breaker for court, sort by item name alphabetically
+      return a.itemName.localeCompare(b.itemName);
+    });
+
+    // Insert blank lines between categories
+    const csvRowsWithSeparators: (AggregatedItem | {})[] = [];
+    let previousCategory = "";
+    for (const row of csvRowsToExport) {
+        const currentCategory = row.category;
+        if (previousCategory) { // Don't add a separator before the first item
+            if (currentCategory === 'Equipment' && previousCategory === 'Court Revenue') {
+                csvRowsWithSeparators.push({}); 
+            } else if (currentCategory === 'Refreshments' && previousCategory === 'Equipment') {
+                csvRowsWithSeparators.push({}); 
+            }
+        }
+        csvRowsWithSeparators.push(row);
+        previousCategory = currentCategory;
+    }
+
+    const finalCsvData = csvRowsWithSeparators.map(row => {
+      // Check if it's an empty separator row
+      if (!('category' in row)) { // If 'category' property doesn't exist, it's our empty separator
+          return {};
+      }
+      // Otherwise, it's a data row
+      return {
+        // 'Date': reportDateStr, // Removed Date column
+        'Category': row.category,
+        'Item/Rate Name': row.itemName, // Using the potentially more detailed getRateDisplayLabel for court items
+        'Unit Price': row.unitPrice,
+        'Cash Qty': row.cashQty,
+        'Cash Revenue': `${row.cashRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`,
+        'Card Qty': row.cardQty,
+        'Card Revenue': `${row.cardRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`,
+        'Total Qty': row.totalQty,
+        'Total Revenue': `${row.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`
+        // 'Currency': CURRENCY_SYMBOL // Removed Currency column
+      };
+    });
+    
+    if (finalCsvData.length === 0) {
+      console.log("No data to export.");
+      // Optionally, show an alert to the user here.
+      return;
+    }
+
+    // Add Totals Summary
+    finalCsvData.push({} as any); // Empty line
+    finalCsvData.push({ 'Category': 'SUMMARY TOTALS',} as any);
+    finalCsvData.push({'Category': 'Total Cash Revenue', 'Total Revenue': `${reportData.cash.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}` } as any);
+    finalCsvData.push({'Category': 'Total Card Revenue', 'Total Revenue': `${reportData.card.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}` } as any);
+    finalCsvData.push({'Category': 'Grand Total Revenue', 'Total Revenue': `${grandTotal.toFixed(2)} ${CURRENCY_SYMBOL}` } as any);
+
+
+    const csv = unparse(finalCsvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `daily_report_${reportDateStr}_structured.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto bg-background">
+      <AlertDialogContent className="max-w-7xl bg-background flex flex-col max-h-[90vh]">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 text-xl tracking-tight text-foreground">
             <FileText className="h-5 w-5 text-blue-500 dark:text-blue-400" />
@@ -252,18 +470,13 @@ export function DayReportDialog({
             </span>
           </AlertDialogTitle>
         </AlertDialogHeader>
-        {/* 
-          AlertDialogDescription is typically used for short descriptions.
-          For complex content like this report, it's better to structure it within the main content area
-          or ensure AlertDialogContent itself is scrollable and handles the layout.
-          The following div acts as the main content body for the report.
-        */}
-        <div className="mt-4 space-y-6 text-sm text-muted-foreground">
+        
+        <div className="mt-4 space-y-6 text-sm text-muted-foreground flex-grow overflow-y-auto custom-scrollbar pr-2 pb-4">
             <div className="border border-border rounded-lg overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Cash column */}
                 <div className="border-r-0 md:border-r border-border flex flex-col">
-                  <div className="p-3 flex items-center justify-between bg-yellow-50 dark:bg-yellow-950/30 border-b border-border">
+                  <div className="p-3 flex items-center justify-between bg-yellow-50 dark:bg-yellow-950/30 border-b border-border sticky top-0 z-10">
                     <div className="flex items-center gap-2">
                       <Banknote className="h-5 w-5 text-yellow-700 dark:text-yellow-500" />
                       <h3 className="font-semibold text-yellow-900 dark:text-yellow-300">Cash Payments</h3>
@@ -291,7 +504,7 @@ export function DayReportDialog({
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                        <Coffee className="h-4 w-4 text-muted-foreground" />
+                        <CupSoda className="h-4 w-4 text-muted-foreground" />
                         Refreshments
                       </h4>
                       <div className="space-y-2">
@@ -299,7 +512,7 @@ export function DayReportDialog({
                       </div>
                     </div>
                   </div>
-                  <div className="p-3 bg-yellow-50 dark:bg-yellow-950/30 border-t border-border sticky bottom-0">
+                  <div className="p-3 bg-yellow-50 dark:bg-yellow-950/30 border-t border-border sticky bottom-0 z-10">
                     <div className="flex items-center justify-between">
                       <div className="font-medium text-yellow-900 dark:text-yellow-300">Cash Total:</div>
                       <div className="flex items-center gap-2 font-semibold text-yellow-800 dark:text-yellow-300">
@@ -311,7 +524,7 @@ export function DayReportDialog({
                 </div>
                 {/* Card column */}
                 <div className="border-t md:border-t-0 border-border flex flex-col">
-                  <div className="p-3 flex items-center justify-between bg-green-50 dark:bg-green-950/30 border-b border-border">
+                  <div className="p-3 flex items-center justify-between bg-green-50 dark:bg-green-950/30 border-b border-border sticky top-0 z-10">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-5 w-5 text-green-700 dark:text-green-500" />
                       <h3 className="font-semibold text-green-900 dark:text-green-300">Card Payments</h3>
@@ -339,7 +552,7 @@ export function DayReportDialog({
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                        <Coffee className="h-4 w-4 text-muted-foreground" />
+                        <CupSoda className="h-4 w-4 text-muted-foreground" />
                         Refreshments
                       </h4>
                       <div className="space-y-2">
@@ -347,7 +560,7 @@ export function DayReportDialog({
                       </div>
                     </div>
                   </div>
-                  <div className="p-3 bg-green-50 dark:bg-green-950/30 border-t border-border sticky bottom-0">
+                  <div className="p-3 bg-green-50 dark:bg-green-950/30 border-t border-border sticky bottom-0 z-10">
                     <div className="flex items-center justify-between">
                       <div className="font-medium text-green-900 dark:text-green-300">Card Total:</div>
                       <div className="flex items-center gap-2 font-semibold text-green-800 dark:text-green-300">
@@ -360,7 +573,7 @@ export function DayReportDialog({
               </div>
             </div>
             
-            <div className="border border-border rounded-lg overflow-hidden">
+            <div className="border border-border rounded-lg overflow-hidden mt-6">
               <div className="p-4 bg-muted/30 dark:bg-muted/20 flex flex-col md:flex-row justify-center items-center gap-4">
                 <div className="flex items-center gap-4">
                   <div className="text-4xl font-bold text-foreground">{grandTotal.toFixed(2)} {CURRENCY_SYMBOL}</div>
@@ -372,16 +585,24 @@ export function DayReportDialog({
               </div>
             </div>
         </div>
-        <AlertDialogFooter className="flex justify-between items-center gap-2 mt-4">
+        <AlertDialogFooter className="flex justify-between items-center gap-2 mt-auto pt-4 border-t">
           <div className="text-sm text-muted-foreground">
             Generated on {format(new Date(), 'MMM d, yyyy HH:mm')}
           </div>
-          <div>
+          <div className="flex gap-2"> 
             <AlertDialogAction
               onClick={onClose}
-              className="bg-muted hover:bg-muted/80 text-foreground" // Adjusted for better theming
+              className="bg-muted hover:bg-muted/80 text-foreground px-4"
             >
               Close
+            </AlertDialogAction>
+            <AlertDialogAction
+              onClick={handleExportToCSV}
+              className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 flex items-center gap-1.5 px-4"
+              type="button"
+            >
+              <Download className="h-4 w-4" />
+              <span className="whitespace-nowrap">Export to CSV</span>
             </AlertDialogAction>
           </div>
         </AlertDialogFooter>
