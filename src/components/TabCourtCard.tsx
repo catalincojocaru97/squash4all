@@ -138,9 +138,9 @@ export function TabCourtCard({
   }
   
   // Main handler to end session (called by ActiveSession via ActiveTab)
-  const handleEndSession = (finalCost: number, paymentMethod?: 'cash' | 'card') => {
-    console.log('TabCourtCard: Received end session signal with cost:', finalCost, 'Method:', paymentMethod);
-    const completedSession = endSession(finalCost, paymentMethod); // Call the hook's end function
+  const handleEndSession = (finalCost: number, paymentMethod?: 'cash' | 'card', isExplicitCancel: boolean = false) => {
+    console.log('TabCourtCard: Received end session signal with cost:', finalCost, 'Method:', paymentMethod, 'Explicit Cancel:', isExplicitCancel);
+    const completedSession = endSession(finalCost, paymentMethod, isExplicitCancel); // Call the hook's end function
     if (completedSession && onSessionEnd) {
        onSessionEnd(completedSession.cost); // Propagate if needed
     }
@@ -255,7 +255,7 @@ export function TabCourtCard({
                       items={activeSession.items}
                       getSessionRate={() => activeSession.hourlyRate}
                       onCompleteWithPayment={(paymentMethod) => handleEndSession(activeSession.cost, paymentMethod)}
-                      onCancelWithoutPayment={() => handleEndSession(0)}
+                      onCancelWithoutPayment={() => handleEndSession(0, undefined, true)}
                     />
                   </div>
                 </div>

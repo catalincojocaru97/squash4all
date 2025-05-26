@@ -262,7 +262,7 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
             <div className="px-3 pb-2 -mt-1">
               <div className="flex items-center text-xs text-green-600 dark:text-green-400">
                 <Award className="h-3 w-3 mr-1" />
-                <span>Subscription Active (Court Fee Waived)</span>
+                <span>Subscription Active (No Court Fee)</span>
               </div>
             </div>
           )}
@@ -319,7 +319,7 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
                       </div>
                       {session.hasSubscription && (
                         <div className="mt-2 pt-2 border-t border-border text-xs text-green-600 dark:text-green-400">
-                          Court fee is waived due to active subscription.
+                          No court fee due to active subscription.
                         </div>
                       )}
                     </div>

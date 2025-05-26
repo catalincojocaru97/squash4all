@@ -1,12 +1,12 @@
 import React from "react"
-import { 
+import {
   AlertDialog,
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog"
@@ -29,19 +29,19 @@ interface EndSessionDialogProps {
   onClose?: () => void
 }
 
-export function EndSessionDialog({ 
+export function EndSessionDialog({
   session,
   currentCost,
   elapsedTime,
   items = session.items,
   getSessionRate,
-  onCompleteWithPayment, 
+  onCompleteWithPayment,
   onCancelWithoutPayment,
   mode = 'end',
   isOpen,
   onClose
 }: EndSessionDialogProps) {
-  
+
   // Calculate duration in hours and minutes for details mode
   const getDuration = () => {
     if (mode === 'end' && elapsedTime) {
@@ -54,33 +54,33 @@ export function EndSessionDialog({
       const durationMs = end.getTime() - start.getTime()
       const hours = Math.floor(durationMs / (1000 * 60 * 60))
       const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60))
-      
+
       return `${hours}h ${minutes}m`
     }
-    
+
     return `${session.scheduledDuration}h (scheduled)`
   }
-  
+
   // Get rate for either mode
   const getRate = () => {
     if (mode === 'end' && getSessionRate) {
       return getSessionRate()
     }
-    
+
     // Use the same rate calculation logic for details mode as used in active session
     if (session.isStudent && session.selectedTimeInterval === 'day') {
       return STUDENT_PRICE
     }
-    
+
     if (session.type === "table-tennis") {
       return session.hourlyRate
     }
-    
+
     // For squash courts, find the appropriate rate from TIME_INTERVAL_OPTIONS
     const option = TIME_INTERVAL_OPTIONS.find(opt => opt.value === session.selectedTimeInterval)
     return option ? option.price : session.hourlyRate
   }
-  
+
   // Calculate total cost for either mode
   const getTotalCost = () => {
     if (mode === 'end' && currentCost) {
@@ -88,13 +88,13 @@ export function EndSessionDialog({
     }
     return session.cost
   }
-  
+
   // Conditionally render the dialog based on mode
   return (
     mode === 'end' ? (
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button 
+          <Button
             variant="destructive"
             className="w-full bg-red-500 hover:bg-red-600 transition-all duration-300 h-10 mt-2"
           >
@@ -110,7 +110,7 @@ export function EndSessionDialog({
               <div className="mb-2 text-sm">
                 <span className="text-muted-foreground">Player:</span> <span className="font-medium">{session.playerName}</span>
               </div>
-              
+
               <div className="mt-4 space-y-4">
                 <div className="overflow-hidden bg-card rounded-xl border border-border shadow-sm">
                   <div className="px-4 py-3 bg-muted/50 dark:bg-muted/30">
@@ -139,10 +139,10 @@ export function EndSessionDialog({
                         <div className="flex justify-between items-center">
                           <div className="text-sm font-medium text-foreground">
                             {session.hasSubscription ? "Subscription (Court Fee)" : session.type === "squash" ? (
-                              session.isStudent ? "Student Rate" : 
-                              session.selectedTimeInterval === "day" ? "Day Rate (7-17)" :
-                              session.selectedTimeInterval === "evening" ? "Evening Rate (17-23)" : 
-                              "Weekend Rate"
+                              session.isStudent ? "Student Rate" :
+                                session.selectedTimeInterval === "day" ? "Day Rate (7-17)" :
+                                  session.selectedTimeInterval === "evening" ? "Evening Rate (17-23)" :
+                                    "Weekend Rate"
                             ) : (
                               "Table Tennis Rate"
                             )}
@@ -154,8 +154,8 @@ export function EndSessionDialog({
                         </div>
                         <div className="flex justify-between items-center pl-2 text-sm">
                           <div className="text-muted-foreground">
-                            {session.hasSubscription ? 
-                              "Court fee waived"
+                            {session.hasSubscription ?
+                              "No Court Fee"
                               : `${session.scheduledDuration} ${session.scheduledDuration === 1 ? 'hour' : 'hours'} × ${getRate().toFixed(2)} ${CURRENCY_SYMBOL}`
                             }
                           </div>
@@ -171,53 +171,53 @@ export function EndSessionDialog({
                             const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId);
                             return itemDef?.category === 'equipment' && item.quantity > 0;
                           }) && (
-                            <div className="space-y-1">
-                              <div className="text-xs font-medium text-muted-foreground flex items-center">
-                                <ShoppingCart className="h-3 w-3 mr-1 text-muted-foreground" />
-                                Equipment
-                              </div>
-                              {items.map((item) => {
-                                const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
-                                if (!itemDef || itemDef.category !== 'equipment' || item.quantity === 0) return null
-                                return (
-                                  <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
-                                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                                      <span>{itemDef.name}</span>
-                                      <span className="text-muted-foreground text-xs">×</span>
-                                      <span className="text-foreground">{item.quantity}</span>
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium text-muted-foreground flex items-center">
+                                  <ShoppingCart className="h-3 w-3 mr-1 text-muted-foreground" />
+                                  Equipment
+                                </div>
+                                {items.map((item) => {
+                                  const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
+                                  if (!itemDef || itemDef.category !== 'equipment' || item.quantity === 0) return null
+                                  return (
+                                    <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
+                                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                        <span>{itemDef.name}</span>
+                                        <span className="text-muted-foreground text-xs">×</span>
+                                        <span className="text-foreground">{item.quantity}</span>
+                                      </div>
+                                      <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
                                     </div>
-                                    <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
-                          
+                                  )
+                                })}
+                              </div>
+                            )}
+
                           {items.some(item => {
                             const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId);
                             return itemDef?.category === 'refreshment' && item.quantity > 0;
                           }) && (
-                            <div className="space-y-1">
-                              <div className="text-xs font-medium text-muted-foreground flex items-center">
-                                <Coffee className="h-3 w-3 mr-1 text-muted-foreground" />
-                                Refreshments
-                              </div>
-                              {items.map((item) => {
-                                const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
-                                if (!itemDef || itemDef.category !== 'refreshment' || item.quantity === 0) return null
-                                return (
-                                  <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
-                                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                                      <span>{itemDef.name}</span>
-                                      <span className="text-muted-foreground text-xs">×</span>
-                                      <span className="text-foreground">{item.quantity}</span>
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium text-muted-foreground flex items-center">
+                                  <Coffee className="h-3 w-3 mr-1 text-muted-foreground" />
+                                  Refreshments
+                                </div>
+                                {items.map((item) => {
+                                  const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
+                                  if (!itemDef || itemDef.category !== 'refreshment' || item.quantity === 0) return null
+                                  return (
+                                    <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
+                                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                        <span>{itemDef.name}</span>
+                                        <span className="text-muted-foreground text-xs">×</span>
+                                        <span className="text-foreground">{item.quantity}</span>
+                                      </div>
+                                      <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
                                     </div>
-                                    <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
+                                  )
+                                })}
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>
@@ -240,17 +240,17 @@ export function EndSessionDialog({
 
                   {/* Add subscription info if applicable */}
                   {session.hasSubscription && (
-                     <div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border-t border-border">
-                       <div className="flex justify-between items-center">
-                         <div className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
-                           <Award className="h-3.5 w-3.5" />
-                           <span>Subscription Active</span>
-                         </div>
-                         <div className="font-mono text-sm font-medium text-green-700 dark:text-green-400">
-                           Court Fee Waived
-                         </div>
-                       </div>
-                     </div>
+                    <div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border-t border-border">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                          <Award className="h-3.5 w-3.5" />
+                          <span>Subscription Active</span>
+                        </div>
+                        <div className="font-mono text-sm font-medium text-green-700 dark:text-green-400">
+                          No Court Fee
+                        </div>
+                      </div>
+                    </div>
                   )}
 
                   <div className="px-4 py-3 bg-muted/50 dark:bg-muted/30 border-t border-border">
@@ -280,7 +280,7 @@ export function EndSessionDialog({
                 ({getTotalCost().toFixed(2)} {CURRENCY_SYMBOL})
               </span>
             </AlertDialogAction>
-            
+
             <AlertDialogAction
               onClick={() => onCompleteWithPayment?.('card')}
               className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-medium"
@@ -291,7 +291,7 @@ export function EndSessionDialog({
                 ({getTotalCost().toFixed(2)} {CURRENCY_SYMBOL})
               </span>
             </AlertDialogAction>
-            
+
             <AlertDialogCancel
               onClick={onCancelWithoutPayment}
               className="w-full flex items-center justify-center gap-2 text-foreground hover:text-foreground hover:bg-muted font-medium"
@@ -317,7 +317,7 @@ export function EndSessionDialog({
                   <p className="text-sm text-muted-foreground mt-1">{session.contactInfo}</p>
                 )}
               </div>
-              
+
               <div className="mt-4 space-y-4">
                 {/* Session time info */}
                 <div className="overflow-hidden bg-card rounded-xl border border-border shadow-sm">
@@ -347,10 +347,10 @@ export function EndSessionDialog({
                         <div className="flex justify-between items-center">
                           <div className="text-sm font-medium text-foreground">
                             {session.hasSubscription ? "Subscription (Court Fee)" : session.type === "squash" ? (
-                              session.isStudent ? "Student Rate" : 
-                              session.selectedTimeInterval === "day" ? "Day Rate (7-17)" :
-                              session.selectedTimeInterval === "evening" ? "Evening Rate (17-23)" : 
-                              "Weekend Rate"
+                              session.isStudent ? "Student Rate" :
+                                session.selectedTimeInterval === "day" ? "Day Rate (7-17)" :
+                                  session.selectedTimeInterval === "evening" ? "Evening Rate (17-23)" :
+                                    "Weekend Rate"
                             ) : (
                               "Table Tennis Rate"
                             )}
@@ -362,8 +362,8 @@ export function EndSessionDialog({
                         </div>
                         <div className="flex justify-between items-center pl-2 text-sm">
                           <div className="text-muted-foreground">
-                            {session.hasSubscription ? 
-                              "Court fee waived"
+                            {session.hasSubscription ?
+                              "No Court Fee"
                               : `${session.scheduledDuration} ${session.scheduledDuration === 1 ? 'hour' : 'hours'} × ${getRate().toFixed(2)} ${CURRENCY_SYMBOL}`
                             }
                           </div>
@@ -379,53 +379,53 @@ export function EndSessionDialog({
                             const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId);
                             return itemDef?.category === 'equipment' && item.quantity > 0;
                           }) && (
-                            <div className="space-y-1">
-                              <div className="text-xs font-medium text-muted-foreground flex items-center">
-                                <ShoppingCart className="h-3 w-3 mr-1 text-muted-foreground" />
-                                Equipment
-                              </div>
-                              {items.map((item) => {
-                                const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
-                                if (!itemDef || itemDef.category !== 'equipment' || item.quantity === 0) return null
-                                return (
-                                  <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
-                                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                                      <span>{itemDef.name}</span>
-                                      <span className="text-muted-foreground text-xs">×</span>
-                                      <span className="text-foreground">{item.quantity}</span>
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium text-muted-foreground flex items-center">
+                                  <ShoppingCart className="h-3 w-3 mr-1 text-muted-foreground" />
+                                  Equipment
+                                </div>
+                                {items.map((item) => {
+                                  const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
+                                  if (!itemDef || itemDef.category !== 'equipment' || item.quantity === 0) return null
+                                  return (
+                                    <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
+                                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                        <span>{itemDef.name}</span>
+                                        <span className="text-muted-foreground text-xs">×</span>
+                                        <span className="text-foreground">{item.quantity}</span>
+                                      </div>
+                                      <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
                                     </div>
-                                    <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
-                          
+                                  )
+                                })}
+                              </div>
+                            )}
+
                           {items.some(item => {
                             const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId);
                             return itemDef?.category === 'refreshment' && item.quantity > 0;
                           }) && (
-                            <div className="space-y-1">
-                              <div className="text-xs font-medium text-muted-foreground flex items-center">
-                                <Coffee className="h-3 w-3 mr-1 text-muted-foreground" />
-                                Refreshments
-                              </div>
-                              {items.map((item) => {
-                                const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
-                                if (!itemDef || itemDef.category !== 'refreshment' || item.quantity === 0) return null
-                                return (
-                                  <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
-                                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                                      <span>{itemDef.name}</span>
-                                      <span className="text-muted-foreground text-xs">×</span>
-                                      <span className="text-foreground">{item.quantity}</span>
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium text-muted-foreground flex items-center">
+                                  <Coffee className="h-3 w-3 mr-1 text-muted-foreground" />
+                                  Refreshments
+                                </div>
+                                {items.map((item) => {
+                                  const itemDef = ADDITIONAL_ITEMS.find((i) => i.id === item.itemId)
+                                  if (!itemDef || itemDef.category !== 'refreshment' || item.quantity === 0) return null
+                                  return (
+                                    <div key={item.itemId} className="flex justify-between items-center py-0.5 pl-2">
+                                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                        <span>{itemDef.name}</span>
+                                        <span className="text-muted-foreground text-xs">×</span>
+                                        <span className="text-foreground">{item.quantity}</span>
+                                      </div>
+                                      <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
                                     </div>
-                                    <div className="font-mono text-sm font-medium text-foreground">{(itemDef.price * item.quantity).toFixed(2)} {CURRENCY_SYMBOL}</div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
+                                  )
+                                })}
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>
@@ -448,17 +448,17 @@ export function EndSessionDialog({
 
                   {/* Add subscription info if applicable */}
                   {session.hasSubscription && (
-                     <div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border-t border-border">
-                       <div className="flex justify-between items-center">
-                         <div className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
-                           <Award className="h-3.5 w-3.5" />
-                           <span>Subscription Active</span>
-                         </div>
-                         <div className="font-mono text-sm font-medium text-green-700 dark:text-green-400">
-                           Court Fee Waived
-                         </div>
-                       </div>
-                     </div>
+                    <div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border-t border-border">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                          <Award className="h-3.5 w-3.5" />
+                          <span>Subscription Active</span>
+                        </div>
+                        <div className="font-mono text-sm font-medium text-green-700 dark:text-green-400">
+                          No Court Fee
+                        </div>
+                      </div>
+                    </div>
                   )}
 
                   <div className="px-4 py-3 bg-muted/50 dark:bg-muted/30 border-t border-border">
@@ -500,7 +500,7 @@ export function EndSessionDialog({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Cancelation Badge (if canceled) */}
                 {session.paymentStatus === 'canceled' && (
                   <div className="flex justify-center items-center">

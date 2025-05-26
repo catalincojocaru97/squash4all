@@ -110,9 +110,9 @@ export function useCourtSessions(courtId: string) {
   }, [activeSession])
   
   // End the active session and move it to finished
-  const endSession = useCallback((finalCost: number, paymentMethod?: 'cash' | 'card') => {
+  const endSession = useCallback((finalCost: number, paymentMethod?: 'cash' | 'card', isExplicitCancel?: boolean) => {
     if (activeSession) {
-      console.log('useCourtSessions: Ending session with cost:', finalCost, 'Method:', paymentMethod);
+      console.log('useCourtSessions: Ending session with cost:', finalCost, 'Method:', paymentMethod, 'Explicit Cancel:', isExplicitCancel);
       
       const now = new Date()
       const finishedSession: Session = {
@@ -120,8 +120,8 @@ export function useCourtSessions(courtId: string) {
         status: 'finished',
         endTime: now,
         cost: finalCost,
-        paymentStatus: finalCost > 0 ? 'paid' : 'canceled',
-        paymentMethod: finalCost > 0 ? paymentMethod || null : null
+        paymentStatus: isExplicitCancel ? 'canceled' : 'paid', // If not explicitly canceled, it's 'paid' (even if 0 cost)
+        paymentMethod: isExplicitCancel || finalCost === 0 ? null : (paymentMethod || null) // No payment method if canceled or zero cost
       }
       
       // Log the session being ended
