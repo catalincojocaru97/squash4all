@@ -96,6 +96,13 @@ export const ADDITIONAL_ITEMS: AdditionalItem[] = [
     category: 'refreshment'
   },
   {
+    id: 'fuzetea',
+    name: 'Fuzetea',
+    price: 6,
+    icon: 'drink',
+    category: 'refreshment'
+  },
+  {
     id: 'gatorade',
     name: 'Gatorade',
     price: 10,
@@ -112,6 +119,13 @@ export const ADDITIONAL_ITEMS: AdditionalItem[] = [
   {
     id: 'magneziu',
     name: 'Magneziu',
+    price: 10,
+    icon: 'drink',
+    category: 'refreshment'
+  },
+  {
+    id: 'red-bull',
+    name: 'Red Bull',
     price: 10,
     icon: 'drink',
     category: 'refreshment'
