@@ -43,11 +43,11 @@ interface CsvExportRow {
   Category?: string;
   'Item/Rate Name'?: string;
   'Unit Price'?: string;
-  'Cash Qty'?: number | string;
+  'Cash Qty'?: number | string; // Allow string for empty placeholders
   'Cash Revenue'?: string;
-  'Card Qty'?: number | string;
+  'Card Qty'?: number | string; // Allow string for empty placeholders
   'Card Revenue'?: string;
-  'Total Qty'?: number | string;
+  'Total Qty'?: number | string; // Allow string for empty placeholders
   'Total Revenue'?: string;
 }
 
@@ -302,12 +302,11 @@ export function DayReportDialog({
       cardRevenue: number;
       totalQty: number;
       totalRevenue: number;
-      sortKey?: number; // For sorting court rates
-      originalRateLabel?: string; // Keep for court rates if needed for display consistency
+      sortKey?: number; 
+      originalRateLabel?: string; 
     };
     const aggregatedData: Record<string, AggregatedItem> = {};
 
-    // Helper to initialize or update aggregated item
     const updateAggregatedItem = (
       key: string,
       category: string,
@@ -334,7 +333,7 @@ export function DayReportDialog({
       if (paymentMethod === 'cash') {
         aggregatedData[key].cashQty += qty;
         aggregatedData[key].cashRevenue += revenue;
-      } else { // card
+      } else { 
         aggregatedData[key].cardQty += qty;
         aggregatedData[key].cardRevenue += revenue;
       }
@@ -342,7 +341,6 @@ export function DayReportDialog({
       aggregatedData[key].totalRevenue += revenue;
     };
     
-    // Process Cash Data
     Object.values(reportData.cash.rateBreakdown).forEach((data) => {
       if (data.count > 0) {
         const itemName = data.originalRateLabel;
@@ -363,7 +361,6 @@ export function DayReportDialog({
       }
     });
 
-    // Process Card Data
     Object.values(reportData.card.rateBreakdown).forEach((data) => {
       if (data.count > 0) {
         const itemName = data.originalRateLabel;
@@ -386,9 +383,7 @@ export function DayReportDialog({
     
     const csvRowsToExport = Object.values(aggregatedData);
 
-    // Sort the aggregated data
     csvRowsToExport.sort((a, b) => {
-      // Sort by Category
       const categoryOrder = { 'Court Revenue': 1, 'Equipment': 2, 'Refreshments': 3 } as const;
       const categoryA = a.category as keyof typeof categoryOrder;
       const categoryB = b.category as keyof typeof categoryOrder;
@@ -396,22 +391,19 @@ export function DayReportDialog({
       if (categoryOrder[categoryA] !== categoryOrder[categoryB]) {
         return categoryOrder[categoryA] - categoryOrder[categoryB];
       }
-      // Within Court Revenue, sort by sortKey (descending price), then by item name
       if (a.category === 'Court Revenue') {
         const priceA = a.sortKey !== undefined ? a.sortKey : 0;
         const priceB = b.sortKey !== undefined ? b.sortKey : 0;
-        if (priceB !== priceA) return priceB - priceA; // Higher price first
+        if (priceB !== priceA) return priceB - priceA; 
       }
-      // For Equipment and Refreshments, or as tie-breaker for court, sort by item name alphabetically
       return a.itemName.localeCompare(b.itemName);
     });
 
-    // Insert blank lines between categories
     const csvRowsWithSeparators: (AggregatedItem | Record<string, never>)[] = [];
     let previousCategory = "";
     for (const row of csvRowsToExport) {
         const currentCategory = row.category;
-        if (previousCategory) { // Don't add a separator before the first item
+        if (previousCategory) { 
             if (currentCategory === 'Equipment' && previousCategory === 'Court Revenue') {
                 csvRowsWithSeparators.push({}); 
             } else if (currentCategory === 'Refreshments' && previousCategory === 'Equipment') {
@@ -423,15 +415,12 @@ export function DayReportDialog({
     }
 
     const finalCsvData: CsvExportRow[] = csvRowsWithSeparators.map(row => {
-      // Check if it's an empty separator row
-      if (!('category' in row)) { // If 'category' property doesn't exist, it's our empty separator
-          return {} as CsvExportRow;
+      if (!('category' in row)) { 
+          return {};
       }
-      // Otherwise, it's a data row
       return {
-        // 'Date': reportDateStr, // Removed Date column
-        'Category': row.category,
-        'Item/Rate Name': row.itemName, // Using the potentially more detailed getRateDisplayLabel for court items
+        Category: row.category,
+        'Item/Rate Name': row.itemName, 
         'Unit Price': row.unitPrice,
         'Cash Qty': row.cashQty,
         'Cash Revenue': `${row.cashRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`,
@@ -439,23 +428,26 @@ export function DayReportDialog({
         'Card Revenue': `${row.cardRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`,
         'Total Qty': row.totalQty,
         'Total Revenue': `${row.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}`
-        // 'Currency': CURRENCY_SYMBOL // Removed Currency column
-      } as CsvExportRow;
+      };
     });
     
-    if (finalCsvData.length === 0) {
-      console.log("No data to export.");
-      // Optionally, show an alert to the user here.
-      return;
+    const hasActualData = finalCsvData.some(row => row.Category && row.Category !== 'SUMMARY TOTALS' && (row['Total Revenue'] || row['Total Qty']));
+    if (!hasActualData && finalCsvData.filter(r => Object.keys(r).length > 0).length <= 4 ) { 
+         console.log("No data to export."); 
+         return; 
     }
 
-    // Add Totals Summary
-    finalCsvData.push({} as any); // Empty line
-    finalCsvData.push({ 'Category': 'SUMMARY TOTALS',} as any);
-    finalCsvData.push({'Category': 'Total Cash Revenue', 'Total Revenue': `${reportData.cash.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}` } as any);
-    finalCsvData.push({'Category': 'Total Card Revenue', 'Total Revenue': `${reportData.card.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}` } as any);
-    finalCsvData.push({'Category': 'Grand Total Revenue', 'Total Revenue': `${grandTotal.toFixed(2)} ${CURRENCY_SYMBOL}` } as any);
+    const emptyRowForSummary: CsvExportRow = {
+        Category: '', 'Item/Rate Name': '', 'Unit Price': '',
+        'Cash Qty': '', 'Cash Revenue': '', 'Card Qty': '',
+        'Card Revenue': '', 'Total Qty': '', 'Total Revenue': ''
+    };
 
+    finalCsvData.push({});
+    finalCsvData.push({ ...emptyRowForSummary, Category: 'SUMMARY TOTALS' });
+    finalCsvData.push({ ...emptyRowForSummary, Category: 'Total Cash Revenue', 'Total Revenue': `${reportData.cash.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}` });
+    finalCsvData.push({ ...emptyRowForSummary, Category: 'Total Card Revenue', 'Total Revenue': `${reportData.card.totalRevenue.toFixed(2)} ${CURRENCY_SYMBOL}` });
+    finalCsvData.push({ ...emptyRowForSummary, Category: 'Grand Total Revenue', 'Total Revenue': `${grandTotal.toFixed(2)} ${CURRENCY_SYMBOL}` });
 
     const csv = unparse(finalCsvData);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
