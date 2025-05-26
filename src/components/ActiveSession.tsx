@@ -65,7 +65,7 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
   // Calculate total cost
   const getSessionCost = useCallback(() => {
     // Calculate based on scheduled duration, not elapsed time
-    const courtCost = session.hasSubscription ? 0 : getSessionRate() * session.scheduledDuration;
+    let initialCourtCost = session.hasSubscription ? 0 : getSessionRate() * session.scheduledDuration;
 
     // Add additional items cost
     const additionalCost = items.reduce((total, item) => {
@@ -73,11 +73,11 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
       return total + (itemDef?.price || 0) * item.quantity
     }, 0)
 
-    // Apply discount for card holders (multiple cards)
-    const baseTotal = courtCost + additionalCost
-    const discountAmount = discountCards * DISCOUNT_CARD_AMOUNT
+    // Apply discount for card holders (multiple cards) ONLY to court cost
+    const discountAmount = discountCards * DISCOUNT_CARD_AMOUNT;
+    const effectiveCourtCost = Math.max(0, initialCourtCost - discountAmount);
 
-    return Math.max(0, baseTotal - discountAmount) // Ensure cost doesn't go below 0
+    return effectiveCourtCost + additionalCost; // Total is effective court cost + items
   }, [getSessionRate, session.scheduledDuration, items, discountCards, session.hasSubscription])
 
   // Update timer and cost

@@ -3,13 +3,12 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { FileText, Calendar, CreditCard, Banknote, Clock, Award, ShoppingCart, Coffee, Users } from "lucide-react"
-import { CURRENCY_SYMBOL, ADDITIONAL_ITEMS, Session, STUDENT_PRICE, DISCOUNT_CARD_AMOUNT, TIME_INTERVAL_OPTIONS } from "@/types"
+import { CURRENCY_SYMBOL, ADDITIONAL_ITEMS, Session, TIME_INTERVAL_OPTIONS } from "@/types"
 import { format, isSameDay } from "date-fns"
 
 interface DayReportDialogProps {

@@ -101,17 +101,17 @@ export function BookingDialog({
   // Calculate total cost based on dialog state
   const calculateTotalCost = useCallback(() => {
     const rate = getCourtRate();
-    const courtCost = hasSubscription ? 0 : rate * scheduledDuration; // Apply subscription
+    const initialCourtCost = hasSubscription ? 0 : rate * scheduledDuration; // Apply subscription
     const itemsCost = selectedItems.reduce((total, item) => {
       const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
       return total + (itemDef?.price || 0) * item.quantity;
     }, 0);
     
-    // Apply discount for card holders (multiple cards)
-    const baseTotal = courtCost + itemsCost;
+    // Apply discount for card holders (multiple cards) ONLY to court cost
     const discountAmount = discountCards * DISCOUNT_CARD_AMOUNT;
-    
-    return Math.max(0, baseTotal - discountAmount); // Ensure cost doesn't go below 0
+    const effectiveCourtCost = Math.max(0, initialCourtCost - discountAmount);
+        
+    return effectiveCourtCost + itemsCost; // Total is effective court cost + items
   }, [getCourtRate, scheduledDuration, selectedItems, discountCards, hasSubscription]);
 
   // Update display cost whenever relevant state changes
