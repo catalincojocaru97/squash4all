@@ -65,7 +65,7 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
   // Calculate total cost
   const getSessionCost = useCallback(() => {
     // Calculate based on scheduled duration, not elapsed time
-    let initialCourtCost = session.hasSubscription ? 0 : getSessionRate() * session.scheduledDuration;
+    const initialCourtCost = session.hasSubscription ? 0 : getSessionRate() * session.scheduledDuration;
 
     // Add additional items cost
     const additionalCost = items.reduce((total, item) => {
