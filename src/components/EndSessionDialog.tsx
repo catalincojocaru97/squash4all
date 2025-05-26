@@ -11,7 +11,7 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { Ban, Coffee, ShoppingCart, CheckCircle, CreditCard, Banknote, AlertCircle } from "lucide-react"
+import { Ban, Coffee, ShoppingCart, CheckCircle, CreditCard, Banknote, AlertCircle, Award } from "lucide-react"
 import { Session, ADDITIONAL_ITEMS, CURRENCY_SYMBOL, STUDENT_PRICE, DISCOUNT_CARD_AMOUNT, TIME_INTERVAL_OPTIONS } from "@/types"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
@@ -138,7 +138,7 @@ export function EndSessionDialog({
                       <div className="space-y-1">
                         <div className="flex justify-between items-center">
                           <div className="text-sm font-medium text-foreground">
-                            {session.type === "squash" ? (
+                            {session.hasSubscription ? "Subscription (Court Fee)" : session.type === "squash" ? (
                               session.isStudent ? "Student Rate" : 
                               session.selectedTimeInterval === "day" ? "Day Rate (7-17)" :
                               session.selectedTimeInterval === "evening" ? "Evening Rate (17-23)" : 
@@ -148,16 +148,19 @@ export function EndSessionDialog({
                             )}
                           </div>
                           <div className="font-mono text-sm font-medium text-foreground">
-                            {getRate().toFixed(2)} {CURRENCY_SYMBOL}
-                            <span className="text-muted-foreground ml-1">/hour</span>
+                            {session.hasSubscription ? "Covered" : `${getRate().toFixed(2)} ${CURRENCY_SYMBOL}`}
+                            {!session.hasSubscription && <span className="text-muted-foreground ml-1">/hour</span>}
                           </div>
                         </div>
                         <div className="flex justify-between items-center pl-2 text-sm">
                           <div className="text-muted-foreground">
-                            {session.scheduledDuration} {session.scheduledDuration === 1 ? 'hour' : 'hours'} × {getRate().toFixed(2)} {CURRENCY_SYMBOL}
+                            {session.hasSubscription ? 
+                              "Court fee waived"
+                              : `${session.scheduledDuration} ${session.scheduledDuration === 1 ? 'hour' : 'hours'} × ${getRate().toFixed(2)} ${CURRENCY_SYMBOL}`
+                            }
                           </div>
                           <div className="font-mono font-medium text-foreground">
-                            {(getRate() * session.scheduledDuration).toFixed(2)} {CURRENCY_SYMBOL}
+                            {session.hasSubscription ? `0.00 ${CURRENCY_SYMBOL}` : (getRate() * session.scheduledDuration).toFixed(2) + ` ${CURRENCY_SYMBOL}`}
                           </div>
                         </div>
                       </div>
@@ -233,6 +236,21 @@ export function EndSessionDialog({
                         </div>
                       </div>
                     </div>
+                  )}
+
+                  {/* Add subscription info if applicable */}
+                  {session.hasSubscription && (
+                     <div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border-t border-border">
+                       <div className="flex justify-between items-center">
+                         <div className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                           <Award className="h-3.5 w-3.5" />
+                           <span>Subscription Active</span>
+                         </div>
+                         <div className="font-mono text-sm font-medium text-green-700 dark:text-green-400">
+                           Court Fee Waived
+                         </div>
+                       </div>
+                     </div>
                   )}
 
                   <div className="px-4 py-3 bg-muted/50 dark:bg-muted/30 border-t border-border">
@@ -328,7 +346,7 @@ export function EndSessionDialog({
                       <div className="space-y-1">
                         <div className="flex justify-between items-center">
                           <div className="text-sm font-medium text-foreground">
-                            {session.type === "squash" ? (
+                            {session.hasSubscription ? "Subscription (Court Fee)" : session.type === "squash" ? (
                               session.isStudent ? "Student Rate" : 
                               session.selectedTimeInterval === "day" ? "Day Rate (7-17)" :
                               session.selectedTimeInterval === "evening" ? "Evening Rate (17-23)" : 
@@ -338,16 +356,19 @@ export function EndSessionDialog({
                             )}
                           </div>
                           <div className="font-mono text-sm font-medium text-foreground">
-                            {getRate().toFixed(2)} {CURRENCY_SYMBOL}
-                            <span className="text-muted-foreground ml-1">/hour</span>
+                            {session.hasSubscription ? "Covered" : `${getRate().toFixed(2)} ${CURRENCY_SYMBOL}`}
+                            {!session.hasSubscription && <span className="text-muted-foreground ml-1">/hour</span>}
                           </div>
                         </div>
                         <div className="flex justify-between items-center pl-2 text-sm">
                           <div className="text-muted-foreground">
-                            {session.scheduledDuration} {session.scheduledDuration === 1 ? 'hour' : 'hours'} × {getRate().toFixed(2)} {CURRENCY_SYMBOL}
+                            {session.hasSubscription ? 
+                              "Court fee waived"
+                              : `${session.scheduledDuration} ${session.scheduledDuration === 1 ? 'hour' : 'hours'} × ${getRate().toFixed(2)} ${CURRENCY_SYMBOL}`
+                            }
                           </div>
                           <div className="font-mono font-medium text-foreground">
-                            {(getRate() * session.scheduledDuration).toFixed(2)} {CURRENCY_SYMBOL}
+                            {session.hasSubscription ? `0.00 ${CURRENCY_SYMBOL}` : (getRate() * session.scheduledDuration).toFixed(2) + ` ${CURRENCY_SYMBOL}`}
                           </div>
                         </div>
                       </div>
@@ -423,6 +444,21 @@ export function EndSessionDialog({
                         </div>
                       </div>
                     </div>
+                  )}
+
+                  {/* Add subscription info if applicable */}
+                  {session.hasSubscription && (
+                     <div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border-t border-border">
+                       <div className="flex justify-between items-center">
+                         <div className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                           <Award className="h-3.5 w-3.5" />
+                           <span>Subscription Active</span>
+                         </div>
+                         <div className="font-mono text-sm font-medium text-green-700 dark:text-green-400">
+                           Court Fee Waived
+                         </div>
+                       </div>
+                     </div>
                   )}
 
                   <div className="px-4 py-3 bg-muted/50 dark:bg-muted/30 border-t border-border">

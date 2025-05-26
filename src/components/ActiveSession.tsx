@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
 
 // Define time intervals for selection with enhanced styling
 // Moved to types/index.ts
@@ -26,7 +27,7 @@ import { Badge } from "@/components/ui/badge"
 interface ActiveSessionProps {
   session: Session
   onAddItems: (items: { itemId: string; quantity: number }[]) => void
-  onUpdateSessionDetails: (updates: { isStudent?: boolean; selectedTimeInterval?: string; discountCards?: number }) => void
+  onUpdateSessionDetails: (updates: { isStudent?: boolean; selectedTimeInterval?: string; discountCards?: number; cost?: number; hasSubscription?: boolean }) => void
 }
 
 export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: ActiveSessionProps) {
@@ -64,7 +65,7 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
   // Calculate total cost
   const getSessionCost = useCallback(() => {
     // Calculate based on scheduled duration, not elapsed time
-    const courtCost = getSessionRate() * session.scheduledDuration
+    const courtCost = session.hasSubscription ? 0 : getSessionRate() * session.scheduledDuration;
 
     // Add additional items cost
     const additionalCost = items.reduce((total, item) => {
@@ -77,7 +78,7 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
     const discountAmount = discountCards * DISCOUNT_CARD_AMOUNT
 
     return Math.max(0, baseTotal - discountAmount) // Ensure cost doesn't go below 0
-  }, [getSessionRate, session.scheduledDuration, items, discountCards])
+  }, [getSessionRate, session.scheduledDuration, items, discountCards, session.hasSubscription])
 
   // Update timer and cost
   useEffect(() => {
@@ -92,7 +93,14 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
   useEffect(() => {
     const newCost = getSessionCost();
     setCurrentCost(newCost);
-  }, [session.isStudent, session.selectedTimeInterval, session.scheduledDuration, items, getSessionCost, discountCards]);
+
+    // Propagate the updated cost back to the parent (useCourtSessions via TabCourtCard)
+    // if the calculated newCost is different from what's currently in session.cost.
+    if (session.cost !== newCost) {
+      onUpdateSessionDetails({ cost: newCost });
+    }
+    // Ensure all dependencies that influence newCost or are involved in the update are listed.
+  }, [session.isStudent, session.selectedTimeInterval, session.scheduledDuration, items, getSessionCost, discountCards, session.hasSubscription, session.cost, onUpdateSessionDetails]);
 
   // Handle adding/removing items
   const handleItemChange = (itemId: string, quantity: number) => {
@@ -143,6 +151,13 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
       onUpdateSessionDetails({ discountCards: newCount });
     }
   }
+
+  // Handler for subscription change
+  const handleSubscriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    const newHasSubscription = e.target.checked;
+    onUpdateSessionDetails({ hasSubscription: newHasSubscription });
+  };
 
   // Get the count of additional items by category
   const getItemCount = (category: string) => {
@@ -242,6 +257,15 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
               </div>
             </div>
           )}
+          {/* Subscription info if applicable */}
+          {session.hasSubscription && (
+            <div className="px-3 pb-2 -mt-1">
+              <div className="flex items-center text-xs text-green-600 dark:text-green-400">
+                <Award className="h-3 w-3 mr-1" />
+                <span>Subscription Active (Court Fee Waived)</span>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -277,7 +301,30 @@ export function ActiveSession({ session, onAddItems, onUpdateSessionDetails }: A
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-2 bg-muted/50 dark:bg-muted/20" onClick={(e) => e.stopPropagation()}>
+                  <div className="p-3 bg-muted/50 dark:bg-muted/20 space-y-3">
+                    {/* Subscription Toggle - Moved inside Rate Options */}
+                    <div className="rounded-md bg-card p-2.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="activeSessionSubscription" className="flex items-center gap-2 text-sm font-medium">
+                          <Award className="h-4 w-4 text-purple-500" />
+                          <span>Monthly Subscription</span>
+                        </Label>
+                        <input
+                          type="checkbox"
+                          id="activeSessionSubscription"
+                          checked={!!session.hasSubscription}
+                          onChange={handleSubscriptionChange}
+                          className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                        />
+                      </div>
+                      {session.hasSubscription && (
+                        <div className="mt-2 pt-2 border-t border-border text-xs text-green-600 dark:text-green-400">
+                          Court fee is waived due to active subscription.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Existing Tabs for squash rates */}
                     <Tabs value={session.selectedTimeInterval || "day"} onValueChange={handleTimeIntervalChange} className="w-full">
                       <div className="bg-card rounded-md p-1.5 flex border border-border mb-2">
                         <TabsList className="bg-transparent p-0 w-full flex justify-between">

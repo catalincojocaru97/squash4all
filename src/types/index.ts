@@ -46,6 +46,7 @@ export interface Session {
   notes?: string
   type: "squash" | "table-tennis" // The court type
   hourlyRate: number // Base hourly rate
+  hasSubscription?: boolean // Added for monthly subscriptions
 }
 
 // Constants

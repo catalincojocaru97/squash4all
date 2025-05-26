@@ -46,6 +46,7 @@ export function BookingDialog({
   const [refreshmentsExpanded, setRefreshmentsExpanded] = useState(false)
   const [discountCardsExpanded, setDiscountCardsExpanded] = useState(false)
   const [displayCost, setDisplayCost] = useState(0) // State to hold calculated cost
+  const [hasSubscription, setHasSubscription] = useState(false) // State for subscription
 
   // Reset state when dialog opens or closes, or when existingSession changes
   useEffect(() => {
@@ -59,6 +60,7 @@ export function BookingDialog({
         setDiscountCards(existingSession.discountCards || 0) // Set the number of discount cards
         setSelectedTimeInterval(existingSession.selectedTimeInterval || determineDefaultTimeInterval())
         setScheduledTime(existingSession.scheduledTime || "8:00")
+        setHasSubscription(existingSession.hasSubscription || false) // Populate subscription
       } else {
         // Reset state for new booking
         setPlayerName("")
@@ -68,6 +70,7 @@ export function BookingDialog({
         setDiscountCards(0) // Reset discount cards to 0
         setSelectedTimeInterval(determineDefaultTimeInterval()) // Set default based on time
         setScheduledTime("8:00")
+        setHasSubscription(false) // Reset subscription
       }
       // Focus name input after a short delay
       setTimeout(() => nameInputRef.current?.focus(), 100)
@@ -98,7 +101,7 @@ export function BookingDialog({
   // Calculate total cost based on dialog state
   const calculateTotalCost = useCallback(() => {
     const rate = getCourtRate();
-    const courtCost = rate * scheduledDuration;
+    const courtCost = hasSubscription ? 0 : rate * scheduledDuration; // Apply subscription
     const itemsCost = selectedItems.reduce((total, item) => {
       const itemDef = ADDITIONAL_ITEMS.find(i => i.id === item.itemId);
       return total + (itemDef?.price || 0) * item.quantity;
@@ -109,7 +112,7 @@ export function BookingDialog({
     const discountAmount = discountCards * DISCOUNT_CARD_AMOUNT;
     
     return Math.max(0, baseTotal - discountAmount); // Ensure cost doesn't go below 0
-  }, [getCourtRate, scheduledDuration, selectedItems, discountCards]);
+  }, [getCourtRate, scheduledDuration, selectedItems, discountCards, hasSubscription]);
 
   // Update display cost whenever relevant state changes
   useEffect(() => {
@@ -171,6 +174,7 @@ export function BookingDialog({
       paymentStatus: 'unpaid', // Default
       startTime: null,
       endTime: null,
+      hasSubscription, // Include subscription status
     };
     onConfirm(sessionData);
   };
@@ -262,6 +266,25 @@ export function BookingDialog({
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+          
+          {/* Subscription Checkbox */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="subscription" className="text-right font-medium">
+              Subscription
+            </Label>
+            <div className="col-span-3 flex items-center">
+              <input
+                type="checkbox"
+                id="subscription"
+                checked={hasSubscription}
+                onChange={(e) => setHasSubscription(e.target.checked)}
+                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded mr-2"
+              />
+              <label htmlFor="subscription" className="text-sm text-muted-foreground">
+                Monthly Subscriber (No Court Fee)
+              </label>
             </div>
           </div>
           
